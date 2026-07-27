@@ -14,6 +14,8 @@
 | 游戏复验 | `recheck-gameplay-safe-hud-390x844.png` | `first-pass-gameplay-320x568.png` |
 | 结算首轮 | — | `first-pass-result-320x568.png` |
 | 结算复验 | — | `recheck-result-320x568.png` |
+| 排行榜版透明结算 | `leaderboard-result-390x844.png` | `leaderboard-result-320x568.png` |
+| 完整排行榜（长用户名/本人/他人） | `leaderboard-overlay-390x844.png` | — |
 | 本地基线 | `../reference/local-baseline-1200x800.png` | — |
 
 ## 首轮发现与修复
@@ -31,6 +33,14 @@
 4. **P2 / 引导辨识度**：幽灵手改为 54 px Material `touch_app`，增加白色光晕、按压缩放与扩散环；文字保留双语且不拦截画布操作。
 5. **P2 / HUD / 距离数字过于普通**：常规 Arial Narrow 与过渡版 Impact 都未达到目标，最终与《Get Off My Grave》一致改用本地打包的 Creepster，并保留 2 px 淡桃硬边错位。
 6. **P2 / HUD / 字体加载与双位数**：确认 `document.fonts.check()` 返回 Creepster 已加载；`0` 与双位数 `12` 均在 390×844 实际运行画面复验，未与静音按钮重叠。
+
+## 排行榜与结算精修复验
+
+1. **方向修正 / 结算 / 实体成绩牌遮挡追上定格**：否决实体成绩牌方案，恢复透明开放式纵向排版；仅精修 Creepster 距离、窄体信息文字、淡桃主按钮和紧凑冠军入口。390×844 与 320×568 中狼咬兔子的构图仍完整可见。
+2. **P0 / 输入 / 隐藏排行榜遮罩截获首触**：作者层 `display:grid` 覆盖了浏览器 `[hidden]` 默认样式；补充 `.vr-leaderboard[hidden]{display:none}` 后，首触恢复世界并起跳。
+3. **P2 / 榜单 / 本人仍显示头像**：本人行移除头像，只保留强调色“你 / YOU”；其他玩家继续显示真实头像或首字母回退。
+4. **P2 / 长用户名与资料点击**：冠军条和完整榜单都使用 `min-width:0` + ellipsis；模拟三名平台数据验证榜单行等宽，点击第三名只发出一次 `AW.PROFILE.OPEN`。
+5. **状态覆盖**：平台内加载、成功、空榜、失败文案均不阻塞重试；平台外入口不请求 rank API，显示 AlterU CTA。
 
 ## 最终评分
 

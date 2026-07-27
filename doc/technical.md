@@ -6,7 +6,7 @@
 - Three.js 0.80.1 WebGL 渲染，保留上游 Geometry API、FlatShading、球面跑道与低多边形角色结构。
 - GSAP 3.15，通过本地 `TweenMax` 兼容薄层复用原作的时序与 easing 调用。
 - CSS 响应式 UI、本地 Creepster v13 WOFF2 距离字形、Pointer Events、Web Audio API 合成反馈、IntersectionObserver/Visibility API 生命周期管理。
-- Aigram canonical bridge：`src/shared/runtime/bridge.ts`；当前用户资料通过 `/note/telegram/user/get/info/by/telegram_id` 获取。
+- Aigram canonical bridge：`src/shared/runtime/bridge.ts`；当前用户资料通过 `/note/telegram/user/get/info/by/telegram_id` 获取，排行榜使用游戏 UUID 对应的 rank save/list 接口。
 - 永久游戏 UUID：`c4489aba-61f1-45f4-aea6-c217e798462a`，由 `index.html` 的 `game-uuid` meta 注入。
 
 ### 上游接收与许可
@@ -25,7 +25,7 @@
 
 ```text
 index.html                         # 移动 viewport、UUID、首屏关键底色、Guest Shell
-src/main.js                        # i18n、状态/UI、触控、身份、音频、暂停与首帧握手
+src/main.js                        # i18n、状态/UI、触控、身份、排行榜、通知、音频与首帧握手
 src/rabbit-world.js                # 上游 Three.js 场景、角色、碰撞、追逐与渲染循环
 src/style.css                      # 视觉系统、Guest Shell 安全区与双尺寸响应式
 src/fonts/creepster-latin-v13.woff2 # Get Off My Grave 同款距离展示字体
@@ -65,13 +65,19 @@ Three.js renderer 跟随 `.vr-world` 的 ResizeObserver。产品竖屏相机 z=2
 
 中英文所有用户可见文案由 `t()` 映射；`localStorage.game_locale` 可强制 `zh/en`。
 
+### 排行榜与跨用户交互
+
+AlterU 内使用永久游戏 UUID 调用 `/note/aigram/ai/game/rank/score/save` 提交整数距离，并通过 `/note/aigram/ai/game/rank/score/list/by/session_id` 读取榜单。结算保持透明开放式排版，只增加一条紧凑冠军入口；完整榜单由用户主动打开，显示名次、头像、截断后的用户名和距离。自己的行不显示头像，只显示强调色“你 / YOU”；其他玩家行使用 `click` 触发 `openAigramProfile(user_id)`，榜单滚动容器使用 `touch-action: pan-y`。
+
+每轮首次操作或重试前，从已成功加载的榜单快照当前玩家旧最佳成绩。提交刷新后，仅当新距离高于旧最佳时，从 `(旧最佳, 新距离)` 区间里选分数最高且非自己的一个玩家，通过 `/note/aigram/ai/game/record/play` 发送一次 `score_beat` 通知。榜单尚未成功加载时跳过该轮通知，避免把未知旧最佳误判为 0。平台外不请求榜单，主动打开入口时显示 AlterU 下载提示。
+
 ## 4. 扩展点
 
 - 调整追逐速度、球面半径、碰撞距离和狼位置：修改 `src/rabbit-world.js` 顶部常量。
 - 更换触控闭环、结算内容、身份文案和音频：修改 `src/main.js`。
 - 调整颜色、相机安全区、窄屏布局和动效：修改 `src/style.css` 与 `doc/visual.md`。
 - 替换 3D 模型：保持 Hero/Monster/Carrot/Hedgehog/Fir 构造器边界；升级 Three.js 前先把顶点编辑迁移到 BufferGeometry。
-- 增加存档、排行榜或事件：只有在出现可比较的长期指标时从 `@shared/runtime` 接入；当前视觉玩具不上传分数。
+- 修改排行榜字段、冠军入口、资料点击或 `score_beat` 通知：修改 `src/main.js` 的 leaderboard state、`submitRunScore()` 与 `sendBeatNotify()`；视觉规则位于 `src/style.css` 的 `.vr-champion` / `.vr-leaderboard`。
 - 发布元数据：`meta.json`、`public/poster.png`、`games/games.json` 和 `games/posters/valorous-rabbit.png`。
 
 ### 独立 Skill 判断
