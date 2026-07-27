@@ -1,0 +1,15 @@
+Platform bridge simulation — 2026-07-27
+
+Harness: _qa/platform-harness.html
+Query: api_origin=http://127.0.0.1:5174&telegram_id=24680
+Profile response:
+- data.name = Player From Bridge With A Long Name
+- data.head_url = https://example.com/no-cors-avatar.png
+- avatar response has no Access-Control-Allow-Origin and is not read by Canvas/WebGL
+
+Observed game marker:
+data-identity-source="player"
+
+Result: PASS. The rendered identity source remains the current player; the
+cross-origin avatar does not cause replacement with fallback identity because
+this upstream effect is not image-driven and does not read avatar pixels.

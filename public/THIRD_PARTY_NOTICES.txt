@@ -1,0 +1,73 @@
+THIRD-PARTY NOTICES
+===================
+
+1. "The frantic run of the valorous rabbit"
+   Author: Karim Maaloul (Yakudoo)
+   Original: https://codepen.io/Yakudoo/pen/YGxYej
+   Retrieved: 2026-07-27
+   License: MIT (public CodePen Pens are MIT licensed)
+   License reference: https://blog.codepen.io/docs/pens/licensing/
+   Local modifications: converted to a Vite module, updated lifecycle and
+   interaction handling, added mobile UI, accessibility, synthesized audio,
+   AlterU identity copy, and GSAP 3 compatibility while retaining the original
+   scene construction and motion.
+
+   Copyright (c) 2016 Karim Maaloul
+
+   Permission is hereby granted, free of charge, to any person obtaining a copy
+   of this software and associated documentation files (the "Software"), to deal
+   in the Software without restriction, including without limitation the rights
+   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   copies of the Software, and to permit persons to whom the Software is
+   furnished to do so, subject to the following conditions:
+
+   The above copyright notice and this permission notice shall be included in
+   all copies or substantial portions of the Software.
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   SOFTWARE.
+
+2. Three.js
+   Project: https://github.com/mrdoob/three.js
+   Version: 0.80.1
+   License: MIT
+
+   Copyright © 2010-2016 three.js authors
+
+   Permission is hereby granted, free of charge, to any person obtaining a copy
+   of this software and associated documentation files (the "Software"), to deal
+   in the Software without restriction, including without limitation the rights
+   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   copies of the Software, and to permit persons to whom the Software is
+   furnished to do so, subject to the following conditions:
+
+   The above copyright notice and this permission notice shall be included in
+   all copies or substantial portions of the Software.
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   SOFTWARE.
+
+3. GSAP
+   Project: https://github.com/greensock/GSAP
+   Version: 3.15.x
+   License: GreenSock Standard "No Charge" License
+   License: https://gsap.com/standard-license/
+   Copyright (c) 2008-2026 GreenSock. All rights reserved.
+
+4. Material Icons "touch_app" path
+   Project: Google Material Icons
+   Source: https://fonts.google.com/icons
+   License: Apache License 2.0
+   License text: ./LICENSES/Apache-2.0.txt
+   Local modifications: path embedded as an inline SVG and recolored.
+

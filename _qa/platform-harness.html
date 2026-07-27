@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Valorous Rabbit platform bridge harness</title>
+    <style>
+      html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#222}
+      iframe{display:block;width:100%;height:100%;border:0}
+    </style>
+  </head>
+  <body>
+    <iframe
+      id="game"
+      title="Platform simulation"
+      src="../?api_origin=http%3A%2F%2F127.0.0.1%3A5174&telegram_id=24680"
+    ></iframe>
+    <script>
+      const frame = document.querySelector('#game');
+      window.addEventListener('message', (event) => {
+        if (typeof event.data !== 'string' || !event.data.startsWith('callAPI-')) return;
+        const request = JSON.parse(decodeURIComponent(escape(atob(event.data.slice(8)))));
+        const response = {
+          request_id: request.request_id,
+          success: true,
+          data: {
+            retcode: 0,
+            msg: 'ok',
+            data: {
+              name: 'Player From Bridge With A Long Name',
+              head_url: 'https://example.com/no-cors-avatar.png'
+            }
+          }
+        };
+        const payload = btoa(unescape(encodeURIComponent(JSON.stringify(response))));
+        frame.contentWindow.postMessage(`callAPIResult-${payload}`, 'http://127.0.0.1:5174');
+      });
+    </script>
+  </body>
+</html>

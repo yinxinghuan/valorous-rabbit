@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta name="game-uuid" content="c4489aba-61f1-45f4-aea6-c217e798462a" />
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    <meta name="theme-color" content="#dbe6e6" />
+    <meta name="description" content="在旋转的低多边形原野上，帮助勇敢的兔子跃过刺猬、追逐胡萝卜。" />
+    <title>Valorous Rabbit</title>
+    <style>
+      html,body,#app{width:100%;height:100%;margin:0;background:#dbe6e6}
+      body{overflow:hidden}
+      .vr-critical{position:fixed;inset:0;background:#dbe6e6;color:#5b332a}
+    </style>
+    <script src="https://images.aiwaves.tech/alteru/guest-shell.js" defer></script>
+  </head>
+  <body>
+    <main id="app" class="vr-critical" aria-live="polite"></main>
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
