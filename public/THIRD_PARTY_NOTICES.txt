@@ -71,3 +71,13 @@ THIRD-PARTY NOTICES
    License text: ./LICENSES/Apache-2.0.txt
    Local modifications: path embedded as an inline SVG and recolored.
 
+5. Creepster
+   Designer: Sideshow / Font Diner, Inc.
+   Source: https://github.com/googlefonts/creepster
+   Google Fonts version: v13, Latin WOFF2 subset
+   Upstream commit: 1c79da6f4d0cc0835ba16d20aba5c113e6245e7e
+   License: SIL Open Font License 1.1
+   Reserved Font Name: "Creepster"
+   License text: ./LICENSES/OFL-1.1-Creepster.txt
+   Local modifications: none; the official Google Fonts WOFF2 subset is
+   bundled locally to avoid a runtime font request.

@@ -27,7 +27,7 @@
 
 ## 4. Typography
 
-- 距离数字：`Impact`, `Haettenschweiler`, `"Arial Narrow Bold"`, `"Avenir Next Condensed"`，400；以紧凑块面和 2 px 淡桃硬边错位呼应低多边形角色。
+- 距离数字：与《Get Off My Grave》一致使用本地打包的 `Creepster` 400，回退为 `Impact`；以不规则怪诞轮廓和 2 px 淡桃硬边错位呼应追逐中的狼与低多边形角色。
 - 其他展示文字：`Arial Narrow`, `Roboto Condensed`, `"Noto Sans SC"`，700。
 - UI/正文：`Inter`, `"Noto Sans SC"`, system-ui，500/600。
 - 距离数字 34–42 px、标签 11–12 px 全大写/中文短标签；正文 16 px；结算标题 36–56 px。

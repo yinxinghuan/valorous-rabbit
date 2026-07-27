@@ -8,7 +8,8 @@
 | 旧唤醒入口（已删除） | `recheck-wake-390x844.png` | `first-pass-wake-320x568.png` |
 | 直接入场引导 | `direct-entry-guide-390x844.png` | `direct-entry-guide-320x568.png` |
 | 首次轻触后运行 | `direct-entry-running-390x844.png` | `direct-entry-running-320x568.png` |
-| 距离数字字形复验 | `direct-entry-guide-display-type-390x844.png`、`direct-entry-running-display-type-390x844.png` | — |
+| 上一版距离字形（已替换） | `direct-entry-guide-display-type-390x844.png`、`direct-entry-running-display-type-390x844.png` | — |
+| Creepster 距离字形 | `direct-entry-guide-creepster-390x844.png`、`direct-entry-running-creepster-390x844.png` | — |
 | 游戏首轮 | `first-pass-gameplay-390x844.png` | `first-pass-gameplay-320x568.png` |
 | 游戏复验 | `recheck-gameplay-safe-hud-390x844.png` | `first-pass-gameplay-320x568.png` |
 | 结算首轮 | — | `first-pass-result-320x568.png` |
@@ -28,7 +29,8 @@
 2. **P1 / 首次操作 / 自动教程替玩家跳跃**：改为暂停中的真实场景与循环幽灵手；教程不再调用 `jump()`。第一次真实轻触同帧隐藏引导、恢复世界并起跳。
 3. **P1 / 暂停合同 / 可见性监听提前恢复世界**：首触前的暂停状态并入统一 `updatePauseState()`，等待 1.4 秒后 390×844 与 320×568 的距离均保持为 0。
 4. **P2 / 引导辨识度**：幽灵手改为 54 px Material `touch_app`，增加白色光晕、按压缩放与扩散环；文字保留双语且不拦截画布操作。
-5. **P2 / HUD / 距离数字过于普通**：数字从常规 Arial Narrow 改为 Impact 优先的块面压缩字形，并使用 2 px 淡桃硬边错位；`0` 与双位数 `54` 均在 390×844 实际运行画面复验，未与静音按钮重叠。
+5. **P2 / HUD / 距离数字过于普通**：常规 Arial Narrow 与过渡版 Impact 都未达到目标，最终与《Get Off My Grave》一致改用本地打包的 Creepster，并保留 2 px 淡桃硬边错位。
+6. **P2 / HUD / 字体加载与双位数**：确认 `document.fonts.check()` 返回 Creepster 已加载；`0` 与双位数 `12` 均在 390×844 实际运行画面复验，未与静音按钮重叠。
 
 ## 最终评分
 

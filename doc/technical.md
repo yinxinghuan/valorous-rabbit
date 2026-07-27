@@ -5,7 +5,7 @@
 - Vite 6 + 原生 JavaScript/TypeScript，`base: './'`，构建输出 `dist/`。
 - Three.js 0.80.1 WebGL 渲染，保留上游 Geometry API、FlatShading、球面跑道与低多边形角色结构。
 - GSAP 3.15，通过本地 `TweenMax` 兼容薄层复用原作的时序与 easing 调用。
-- CSS 响应式 UI、Pointer Events、Web Audio API 合成反馈、IntersectionObserver/Visibility API 生命周期管理。
+- CSS 响应式 UI、本地 Creepster v13 WOFF2 距离字形、Pointer Events、Web Audio API 合成反馈、IntersectionObserver/Visibility API 生命周期管理。
 - Aigram canonical bridge：`src/shared/runtime/bridge.ts`；当前用户资料通过 `/note/telegram/user/get/info/by/telegram_id` 获取。
 - 永久游戏 UUID：`c4489aba-61f1-45f4-aea6-c217e798462a`，由 `index.html` 的 `game-uuid` meta 注入。
 
@@ -28,10 +28,12 @@ index.html                         # 移动 viewport、UUID、首屏关键底色
 src/main.js                        # i18n、状态/UI、触控、身份、音频、暂停与首帧握手
 src/rabbit-world.js                # 上游 Three.js 场景、角色、碰撞、追逐与渲染循环
 src/style.css                      # 视觉系统、Guest Shell 安全区与双尺寸响应式
+src/fonts/creepster-latin-v13.woff2 # Get Off My Grave 同款距离展示字体
 src/shared/runtime/                # Aigram canonical bridge 与 UUID resolution
 public/poster.png                  # Aigram transit 生成的 1024×1024 正式海报
-public/THIRD_PARTY_NOTICES.txt     # 上游、Three.js、GSAP、Material icon 署名
+public/THIRD_PARTY_NOTICES.txt     # 上游、依赖、图标与字体署名
 public/LICENSES/Apache-2.0.txt     # Material touch_app 图标完整许可证
+public/LICENSES/OFL-1.1-Creepster.txt # Creepster 完整 OFL 1.1 许可证
 upstream/                          # 未改动的上游快照和获取说明
 doc/                               # 需求、视觉、技术文档
 _qa/reference/                     # 原作桌面/手机与本地 baseline 证据
