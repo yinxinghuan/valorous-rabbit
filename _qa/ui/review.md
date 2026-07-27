@@ -16,6 +16,12 @@
 | 结算复验 | — | `recheck-result-320x568.png` |
 | 排行榜版透明结算 | `leaderboard-result-390x844.png` | `leaderboard-result-320x568.png` |
 | 完整排行榜（长用户名/本人/他人） | `leaderboard-overlay-390x844.png` | — |
+| 角色商店购买后 | `cast-shop-purchased-390x844.png` | `cast-shop-purchased-320x568.png` |
+| 七类角色运行 | `cast-people__kid-390x844.png`、`cast-monsters__zombie-390x844.png`、`cast-monsters__werewolf-390x844.png`、`cast-monsters__ghost-390x844.png`、`cast-mechs__combatMech-390x844.png`、`cast-animals__frog-recheck-390x844.png`、`cast-animals__duck-390x844.png` | — |
+| 七类动作四帧矩阵 | `cast-motion-sheet-390x844.png` | — |
+| 关卡完成 | `cast-stage-complete-390x844.png` | `cast-stage-complete-final-320x568.png` |
+| 下一角色入场 | `cast-next-granny-390x844.png` | — |
+| 狼咬角色定格 | `cast-caught-people__kid-recheck-390x844.png`、`cast-caught-animals__frog-final-390x844.png` | — |
 | 本地基线 | `../reference/local-baseline-1200x800.png` | — |
 
 ## 首轮发现与修复
@@ -42,16 +48,27 @@
 4. **P2 / 长用户名与资料点击**：冠军条和完整榜单都使用 `min-width:0` + ellipsis；模拟三名平台数据验证榜单行等宽，点击第三名只发出一次 `AW.PROFILE.OPEN`。
 5. **状态覆盖**：平台内加载、成功、空榜、失败文案均不阻塞重试；平台外入口不请求 rank API，显示 AlterU CTA。
 
+## 角色主线与商店垂直切片复验
+
+1. **P1 / 角色尺寸 / 青蛙压过狼与场景**：初版仅按模型高度缩放，扁宽动物在透视相机中显得巨大。改为 `Box3` 同时限制高度 27、宽度 22、深度 22 个世界单位；青蛙复验后与兔子处在同一视觉带。
+2. **P1 / 被捕定格 / 导入角色直立卡在狼嘴边**：缓存角色缩放后的视觉中心，被捕时先以中心归零，再旋转约 83° 并移入 `heroHolder`。孩子和青蛙复验均呈现被横向叼住，结算文字与按钮没有遮挡咬住的主体。
+3. **P1 / 动作同质化 / GLB 看起来像移动模型**：首发 11 个共享角色全部显式绑定 motion profile；孩子快步、僵尸前倾不对称、狼人低身、幽灵漂浮、机甲重踏、青蛙压缩弹跳、鸭子摇摆的四帧矩阵剪影可区分。无命名四肢 rig 的角色也使用显式 root motion，不存在人形 fallback。
+4. **P1 / 进度 / 主线成绩污染排行榜**：排行榜保存、读取与冠军入口只在第 3 关开放的无尽模式启用；主线结算使用关卡秒数和任务胡萝卜，不提交距离。
+5. **P2 / 商店 / 购买与滚动冲突**：两列角色卡使用 `click`，滚动区 `touch-action: pan-y`。390×844 的 `scrollHeight/clientHeight` 为 `904/616`，320×568 为 `796/394`，两种尺寸 `scrollWidth` 都等于 viewport；购买孩子后钱包从 150 正确降至 90。
+6. **P2 / 小屏结算 / 秒数显示成米且署名压住角色**：关卡完成改用独立 `s/秒` 单位；短屏结果整体上移到 4% 安全区。320×568 最终按钮为 240×50，署名位于按钮下方，无横向溢出。
+7. **剩余角色运行审计**：老奶奶、牛头人、鸡和消防员分别加载、启动并运行 900 ms；四项均有 390×844 canvas、无错误态、无 console/page error、body 宽度等于 viewport。
+8. **无尽入口审计**：模拟第 3 关进度后，商店显示“无尽追逐”；切换后 URL 为 `mode=endless`、HUD 为距离、任务行为空，且 390 px 无横向溢出。
+
 ## 最终评分
 
 | 类别 | 分数 | 结论 |
 |---|---:|---|
-| Hierarchy | 5 | 兔子与即将到达的道具为第一焦点，UI 明显退后。 |
-| Coherence | 5 | 引导直接叠在真实低多边形场景内，游戏与结算沿用同一薄荷/砖红系统。 |
+| Hierarchy | 5 | 当前角色与即将到达的道具为第一焦点，UI 明显退后。 |
+| Coherence | 5 | 原作兔子与共享角色处在同一薄荷低多边形世界，商店和结算沿用同一砖红系统。 |
 | Readability | 4 | 长用户名、双语、Guest Shell 与窄屏均可读。 |
-| Game feel | 4 | 首次输入同帧恢复世界并跳跃，幽灵手不替玩家操作；粒子、声音与触觉分级明确。 |
-| Asset quality | 4 | 原作模型可识别；海报与运行画面同属低多边形世界。 |
+| Game feel | 4 | 首次输入同帧恢复世界并跳跃；11 个共享角色有显式跑、跳、落地、受击和被捕动作。 |
+| Asset quality | 4 | 11 个正式 GLB 保留材质、比例和 rig；角色剪影清楚，但程序化兔子仍是细节质量上限。 |
 | Responsive UX | 4 | 390×844、320×568 无横向溢出或不可达控件。 |
 | Polish | 4 | 首帧握手、错误态、重试、减少动态和暂停合同完整。 |
 
-平均分 4.29；无 P0/P1 遗留项。
+平均分 4.29；12 角色首发切片无 P0/P1 遗留项。共享库其余 41 名角色尚未进入产品 roster，必须逐个补齐动作 profile 后再扩展。

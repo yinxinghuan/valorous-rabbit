@@ -6,6 +6,8 @@
  */
 import * as THREE from 'three';
 import { gsap, Power4, Power2, Power1, Back } from 'gsap';
+import { MOTION_PROFILES } from './character-roster.js';
+import { loadPortableGlb } from './portable-glb-loader.js';
 
 // Keep the upstream TweenMax call sites readable while running on maintained
 // GSAP 3. The duration argument is translated into GSAP 3's vars object.
@@ -64,8 +66,13 @@ var isPaused = false;
 var destroyed = false;
 var firstFrameRendered = false;
 var carrotCount = 0;
+var runElapsed = 0;
+var stageGoal = null;
+var debugCatchAfter = 0;
 var resizeObserver;
 var reducedMotion = false;
+var currentCharacter = null;
+var characterTemplateCache = new Map();
 
 var Hero, BonusParticles, Monster, Carrot, Hedgehog, Fir, Tree, Trunc;
 var floorShadow, floorGrass, floor, monster, carrot, obstacle, bonusParticles;
@@ -534,6 +541,173 @@ Hero.prototype.jump = function(){
   }});
   
 }
+
+function cloneRestNode(node) {
+  return node ? {
+    position: node.position.clone(),
+    rotation: node.rotation.clone(),
+    scale: node.scale.clone(),
+  } : null;
+}
+
+function restoreRestNode(node, rest) {
+  if (!node || !rest) return;
+  node.position.copy(rest.position);
+  node.rotation.copy(rest.rotation);
+  node.scale.copy(rest.scale);
+}
+
+function ImportedHero(character, model) {
+  this.character = character;
+  this.profile = MOTION_PROFILES[character.motion];
+  if (!this.profile) throw new Error(`Missing motion profile: ${character.key}`);
+  this.status = 'running';
+  this.runningCycle = 0;
+  this.mesh = new THREE.Group();
+  this.visual = new THREE.Group();
+  this.model = model;
+  this.visual.add(model);
+  this.mesh.add(this.visual);
+
+  model.updateMatrixWorld(true);
+  var box = new THREE.Box3().setFromObject(model);
+  var size = box.size(new THREE.Vector3());
+  var scale = Math.min(
+    27 / Math.max(.01, size.y),
+    22 / Math.max(.01, size.x),
+    22 / Math.max(.01, size.z)
+  );
+  model.scale.setScalar(scale);
+  model.updateMatrixWorld(true);
+  box.setFromObject(model);
+  var center = box.center(new THREE.Vector3());
+  this.centerY = box.size(new THREE.Vector3()).y * .5;
+  model.position.x -= center.x;
+  model.position.z -= center.z;
+  model.position.y -= box.min.y;
+
+  this.rig = {
+    legL: model.getObjectByName('rig_legL'),
+    legR: model.getObjectByName('rig_legR'),
+    armL: model.getObjectByName('rig_armL'),
+    armR: model.getObjectByName('rig_armR'),
+  };
+  this.rest = {
+    legL: cloneRestNode(this.rig.legL),
+    legR: cloneRestNode(this.rig.legR),
+    armL: cloneRestNode(this.rig.armL),
+    armR: cloneRestNode(this.rig.armR),
+  };
+  this.model.traverse(function(object) {
+    if (object instanceof THREE.Mesh) {
+      object.castShadow = true;
+      object.receiveShadow = true;
+    }
+  });
+}
+
+ImportedHero.prototype.restorePose = function() {
+  restoreRestNode(this.rig.legL, this.rest.legL);
+  restoreRestNode(this.rig.legR, this.rest.legR);
+  restoreRestNode(this.rig.armL, this.rest.armL);
+  restoreRestNode(this.rig.armR, this.rest.armR);
+  this.visual.position.set(0, this.profile.hover || 0, 0);
+  this.visual.rotation.set(0, 0, 0);
+  this.visual.scale.set(1, 1, 1);
+};
+
+ImportedHero.prototype.run = function() {
+  this.status = 'running';
+  var p = this.profile;
+  var s = Math.min(speed, maxSpeed);
+  this.runningCycle = (this.runningCycle + delta * s * .7 * p.cadence) % (Math.PI * 2);
+  var t = this.runningCycle + p.phase;
+  var stride = Math.sin(t);
+  var lift = Math.abs(Math.cos(t));
+  var motionScale = reducedMotion ? .45 : 1;
+  var asymmetric = p.asymmetric || 0;
+
+  this.visual.position.y = (p.hover || 0) + lift * p.bounce * motionScale;
+  this.visual.rotation.x = p.lean + stride * .035 * motionScale;
+  this.visual.rotation.z = (p.sway || 0) * stride * motionScale;
+  var stomp = p.stomp ? Math.pow(lift, 8) * p.stomp * motionScale : 0;
+  this.visual.position.y -= stomp;
+  var pulse = p.hop ? Math.max(0, Math.sin(t)) * .08 * motionScale : 0;
+  this.visual.scale.set(1 + pulse, 1 - pulse * .55, 1 + pulse);
+
+  if (this.rig.legL) this.rig.legL.rotation.x = this.rest.legL.rotation.x + stride * p.limb + asymmetric;
+  if (this.rig.legR) this.rig.legR.rotation.x = this.rest.legR.rotation.x - stride * p.limb - asymmetric * .35;
+  if (this.rig.armL) this.rig.armL.rotation.x = this.rest.armL.rotation.x - stride * p.arm + asymmetric;
+  if (this.rig.armR) this.rig.armR.rotation.x = this.rest.armR.rotation.x + stride * p.arm - asymmetric * .2;
+};
+
+ImportedHero.prototype.jump = function() {
+  if (this.status === 'jumping') return;
+  this.status = 'jumping';
+  var self = this;
+  var p = this.profile;
+  var duration = .82 / p.jump;
+  var jumpHeight = 39 * p.jump;
+  TweenMax.killTweensOf(this.mesh.position);
+  TweenMax.killTweensOf(this.visual.scale);
+  TweenMax.to(this.visual.scale, .09, {
+    x: 1 + p.squash,
+    y: 1 - p.squash,
+    z: 1 + p.squash,
+    ease: Power2.easeOut,
+  });
+  if (this.rig.armL) TweenMax.to(this.rig.armL.rotation, .16, { x: this.rest.armL.rotation.x - p.arm * .75 });
+  if (this.rig.armR) TweenMax.to(this.rig.armR.rotation, .16, { x: this.rest.armR.rotation.x + p.arm * .75 });
+  if (this.rig.legL) TweenMax.to(this.rig.legL.rotation, .16, { x: this.rest.legL.rotation.x + p.limb * .45 });
+  if (this.rig.legR) TweenMax.to(this.rig.legR.rotation, .16, { x: this.rest.legR.rotation.x + p.limb * .45 });
+  TweenMax.to(this.mesh.position, duration * .48, { y: jumpHeight, ease: Power2.easeOut, delay: .055 });
+  TweenMax.to(this.mesh.position, duration * .52, {
+    y: 0,
+    ease: Power4.easeIn,
+    delay: duration * .48 + .055,
+    onComplete:function() {
+      self.status = 'running';
+      self.restorePose();
+      TweenMax.from(self.visual.scale, .18, {
+        x: 1 + p.squash * .7,
+        y: 1 - p.squash * .7,
+        z: 1 + p.squash * .7,
+        ease: Back.easeOut,
+      });
+    },
+  });
+  TweenMax.to(this.visual.scale, .18, { x: 1, y: 1, z: 1, delay: .09, ease: Back.easeOut });
+};
+
+ImportedHero.prototype.hit = function() {
+  var self = this;
+  TweenMax.killTweensOf(this.visual.rotation);
+  TweenMax.to(this.visual.rotation, .07, { z: -.22, ease: Power2.easeOut });
+  TweenMax.to(this.visual.rotation, .24, {
+    z: 0,
+    ease: Back.easeOut,
+    delay: .07,
+    onComplete:function() { if (self.status === 'running') self.restorePose(); },
+  });
+};
+
+ImportedHero.prototype.nod = function() {};
+
+ImportedHero.prototype.hang = function() {
+  this.status = 'caught';
+  TweenMax.killTweensOf(this.mesh.position);
+  this.restorePose();
+  this.visual.position.y = -this.centerY;
+  if (this.rig.armL) this.rig.armL.rotation.x = this.rest.armL.rotation.x + .9;
+  if (this.rig.armR) this.rig.armR.rotation.x = this.rest.armR.rotation.x - .9;
+  TweenMax.to(this.mesh.rotation, 1, { y: 0, z: -Math.PI * .46, ease: Power4.easeOut });
+  TweenMax.to(this.mesh.position, 1, { y: 0, z: 5, ease: Power4.easeOut });
+};
+
+ImportedHero.prototype.prepareReplay = function() {
+  this.restorePose();
+  TweenMax.to(this.mesh.position, 2, { x: 20, ease: Power4.easeInOut });
+};
 
 
 Monster = function(){
@@ -1028,11 +1202,29 @@ Hedgehog.prototype.nod = function(){
 }
 
 
-function createHero() {
-  hero = new Hero();
+async function createHero(character) {
+  currentCharacter = character || currentCharacter;
+  if (currentCharacter?.glbUrl) {
+    var template = characterTemplateCache.get(currentCharacter.key);
+    if (!template) {
+      template = await loadPortableGlb(THREE, currentCharacter.glbUrl);
+      characterTemplateCache.set(currentCharacter.key, template);
+    }
+    hero = new ImportedHero(currentCharacter, template.clone(true));
+  } else {
+    hero = new Hero();
+  }
   hero.mesh.rotation.y = Math.PI/2;
   scene.add(hero.mesh);
   hero.nod();
+}
+
+async function replaceHero(character) {
+  if (!character || character.key === currentCharacter?.key) return;
+  if (hero?.mesh?.parent) hero.mesh.parent.remove(hero.mesh);
+  await createHero(character);
+  hero.mesh.position.set(0, 0, 0);
+  hero.status = 'running';
 }
 
 function createMonster() {
@@ -1080,6 +1272,36 @@ function gameOver(){
   callbacks.onGameOver?.({
     distance: Math.floor(distance / 2),
     carrots: carrotCount,
+    elapsed: runElapsed,
+  });
+}
+
+function completeLevel() {
+  if (gameStatus !== 'play') return;
+  gameStatus = 'levelComplete';
+  var speedTween = { value: speed };
+  TweenMax.to(speedTween, .8, {
+    value: 0,
+    onUpdate:function() { speed = speedTween.value; },
+  });
+  carrot.mesh.visible = false;
+  obstacle.mesh.visible = false;
+  if (hero instanceof ImportedHero) {
+    hero.status = 'celebrating';
+    hero.restorePose();
+    if (hero.rig.armL) TweenMax.to(hero.rig.armL.rotation, .35, { x: hero.rest.armL.rotation.x - 1.2, ease: Back.easeOut });
+    if (hero.rig.armR) TweenMax.to(hero.rig.armR.rotation, .35, { x: hero.rest.armR.rotation.x + 1.2, ease: Back.easeOut });
+    TweenMax.to(hero.visual.position, .28, { y: (hero.profile.hover || 0) + 8, yoyo: true, repeat: 1, ease: Power2.easeOut });
+  } else {
+    hero.jump();
+  }
+  window.setTimeout(function() {
+    gameStatus = 'readyToReplay';
+  }, 900);
+  callbacks.onLevelComplete?.({
+    distance: Math.floor(distance / 2),
+    carrots: carrotCount,
+    elapsed: runElapsed,
   });
 }
 
@@ -1116,8 +1338,12 @@ function replay(){
   
   TweenMax.to(monster.head.rotation,2, {y:0, x:-.3, ease:Power4.easeInOut});
   
-  TweenMax.to(hero.mesh.position, 2, { x:20, ease:Power4.easeInOut});
-  TweenMax.to(hero.head.rotation, 2, { x:0, y:0, ease:Power4.easeInOut});
+  if (hero.prepareReplay) {
+    hero.prepareReplay();
+  } else {
+    TweenMax.to(hero.mesh.position, 2, { x:20, ease:Power4.easeInOut});
+    TweenMax.to(hero.head.rotation, 2, { x:0, y:0, ease:Power4.easeInOut});
+  }
   TweenMax.to(monster.mouth.rotation, 2, {x:.2, ease:Power4.easeInOut});
   TweenMax.to(monster.mouth.rotation, 1, {x:.4, ease:Power4.easeIn, delay: 1, onComplete:function(){
     
@@ -1254,6 +1480,7 @@ function getMalus(){
   }});
   //
   monsterPosTarget -= .04;
+  hero.hit?.();
   callbacks.onHit?.();
   if (!reducedMotion) {
     var flash = { alpha: .5 };
@@ -1298,6 +1525,29 @@ function loop(){
       hero.run();
     }
     updateDistance();
+    runElapsed += delta;
+    callbacks.onProgress?.({
+      elapsed: runElapsed,
+      duration: stageGoal?.duration || 0,
+      carrots: carrotCount,
+      carrotGoal: stageGoal?.carrots || 0,
+    });
+    if (stageGoal && runElapsed >= stageGoal.duration && carrotCount >= stageGoal.carrots) {
+      completeLevel();
+      render();
+      return;
+    }
+    if (debugCatchAfter > 0 && runElapsed >= debugCatchAfter) {
+      monsterPos = .56;
+      monsterPosTarget = .56;
+      var debugAngle = Math.PI * monsterPos;
+      monster.mesh.position.y = -floorRadius + Math.sin(debugAngle) * (floorRadius + 12);
+      monster.mesh.position.x = Math.cos(debugAngle) * (floorRadius + 15);
+      monster.mesh.rotation.z = -Math.PI / 2 + debugAngle;
+      gameOver();
+      render();
+      return;
+    }
     levelElapsed += delta * 1000;
     if (levelElapsed >= levelUpdateFreq) {
       levelElapsed -= levelUpdateFreq;
@@ -1320,11 +1570,11 @@ function render(){
   renderer.render(scene, camera);
 }
 
-function init(){
+async function init(){
   initScreenAnd3D();
   createLights();
   createFloor()
-  createHero();
+  await createHero(currentCharacter);
   createMonster();
   createFirs();
   createCarrot();
@@ -1336,18 +1586,21 @@ function init(){
 
 function resetGame(){
   scene.add(hero.mesh);
+  hero.restorePose?.();
   hero.mesh.rotation.y = Math.PI/2;
+  hero.mesh.rotation.z = 0;
   hero.mesh.position.y = 0;
   hero.mesh.position.z = 0;
   hero.mesh.position.x = 0;
 
-  monsterPos = .56;
+  monsterPos = .65;
   monsterPosTarget = .65;
   speed = initSpeed;
   level = 0;
   distance = 0;
   levelElapsed = 0;
   carrotCount = 0;
+  runElapsed = 0;
   carrot.mesh.visible = true;
   obstacle.mesh.visible = true;
   gameStatus = "play";
@@ -1438,7 +1691,7 @@ Trunc = function(){
   this.mesh.castShadow = true;
 }
 
-export function createRabbitWorld(element, options = {}) {
+export async function createRabbitWorld(element, options = {}) {
   if (!element) throw new Error('A world container is required.');
   containerElement = element;
   callbacks = options.callbacks || {};
@@ -1447,10 +1700,14 @@ export function createRabbitWorld(element, options = {}) {
   destroyed = false;
   isPaused = Boolean(options.startPaused);
   firstFrameRendered = false;
+  currentCharacter = options.character || null;
+  stageGoal = options.stageGoal || null;
+  debugCatchAfter = Number(options.debugCatchAfter) || 0;
+  monsterAcceleration = stageGoal ? .0011 : .004;
   if (isPaused && typeof TweenMax.globalTimeScale === 'function') {
     TweenMax.globalTimeScale(0);
   }
-  init();
+  await init();
 
   return {
     jump() {
@@ -1470,6 +1727,22 @@ export function createRabbitWorld(element, options = {}) {
       if (typeof TweenMax.globalTimeScale === 'function') {
         TweenMax.globalTimeScale(isPaused ? 0 : 1);
       }
+    },
+    async setCharacter(character) {
+      var wasPaused = isPaused;
+      isPaused = true;
+      await replaceHero(character);
+      isPaused = wasPaused;
+      if (!isPaused && clock) clock.getDelta();
+    },
+    async startRun(character, nextStageGoal = null) {
+      stageGoal = nextStageGoal;
+      monsterAcceleration = stageGoal ? .0011 : .004;
+      if (character && character.key !== currentCharacter?.key) {
+        await replaceHero(character);
+      }
+      resetGame();
+      return true;
     },
     destroy() {
       destroyed = true;

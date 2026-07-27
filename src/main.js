@@ -7,6 +7,12 @@ import {
   postAigramAPI,
   telegramId,
 } from '@shared/runtime';
+import {
+  CHARACTER_ROSTER,
+  STAGES,
+  getCharacter,
+  getStage,
+} from './character-roster.js';
 
 const query = new URLSearchParams(location.search);
 const baseline = query.get('baseline') === '1';
@@ -40,6 +46,25 @@ const copy = {
     getAlterU: '下载 AlterU',
     you: '你',
     meters: '米',
+    seconds: '秒',
+    stage: '第 {n} 关',
+    stageProgress: '{time}秒 · {carrots}/{goal} 胡萝卜',
+    wardrobe: '角色商店',
+    closeWardrobe: '关闭角色商店',
+    wallet: '胡萝卜',
+    owned: '已拥有',
+    equipped: '已装备',
+    trial: '本关试用',
+    buy: '{price} 根解锁',
+    insufficient: '胡萝卜还不够',
+    purchaseSuccess: '已解锁 {name}',
+    levelComplete: '逃出来了',
+    levelFailed: '差一点逃掉',
+    nextRunner: '下一位',
+    levelResult: '坚持 {time} 秒 · {carrots}/{goal} 胡萝卜',
+    allClear: '主线完成',
+    endless: '无尽追逐',
+    campaign: '返回主线',
     soundOn: '关闭声音',
     soundOff: '打开声音',
     unsupported: '这片原野需要 WebGL',
@@ -71,6 +96,25 @@ const copy = {
     getAlterU: 'Get AlterU',
     you: 'YOU',
     meters: 'm',
+    seconds: 's',
+    stage: 'Stage {n}',
+    stageProgress: '{time}s · {carrots}/{goal} carrots',
+    wardrobe: 'Character shop',
+    closeWardrobe: 'Close character shop',
+    wallet: 'Carrots',
+    owned: 'Owned',
+    equipped: 'Equipped',
+    trial: 'Stage trial',
+    buy: 'Unlock · {price}',
+    insufficient: 'Not enough carrots',
+    purchaseSuccess: '{name} unlocked',
+    levelComplete: 'Made it out',
+    levelFailed: 'Nearly escaped',
+    nextRunner: 'Next runner',
+    levelResult: '{time}s · {carrots}/{goal} carrots',
+    allClear: 'Campaign clear',
+    endless: 'Endless run',
+    campaign: 'Return to campaign',
     soundOn: 'Mute sound',
     soundOff: 'Turn sound on',
     unsupported: 'This meadow needs WebGL',
@@ -91,6 +135,56 @@ document.documentElement.lang = locale;
 document.body.classList.toggle('vr-baseline', baseline);
 
 const materialTouchPath = 'M9 11.24V7.5C9 6.12 10.12 5 11.5 5S14 6.12 14 7.5v3.74c1.21-.81 2-2.18 2-3.74C16 5.01 13.99 3 11.5 3S7 5.01 7 7.5c0 1.56.79 2.93 2 3.74zm9.84 4.63l-4.54-2.26c-.17-.07-.35-.11-.54-.11H13v-6c0-.83-.67-1.5-1.5-1.5S10 6.67 10 7.5v10.74l-3.43-.72c-.08-.01-.15-.03-.24-.03-.31 0-.59.13-.79.33l-.79.8 4.94 4.94c.27.27.65.44 1.06.44h6.79c.75 0 1.33-.55 1.44-1.28l.75-5.27c.01-.07.02-.14.02-.2 0-.62-.38-1.16-.92-1.38z';
+const SAVE_KEY = 'valorous_rabbit_cast_v1';
+const gameUuid = getGameUuid();
+let cloudSaveTimer = 0;
+
+function loadProgress() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(SAVE_KEY) || '{}');
+    return {
+      stage: Math.max(1, Math.min(STAGES.length, Number(saved.stage) || 1)),
+      wallet: Math.max(0, Number(saved.wallet) || 0),
+      unlocked: Array.from(new Set(['original/rabbit', ...(saved.unlocked || [])])),
+      selected: saved.selected || 'original/rabbit',
+      _lastActive: Number(saved._lastActive) || 0,
+    };
+  } catch {
+    return { stage: 1, wallet: 0, unlocked: ['original/rabbit'], selected: 'original/rabbit', _lastActive: 0 };
+  }
+}
+
+let progress = loadProgress();
+function withDebugGoal(stage) {
+  if (!query.has('stage_duration') && !query.has('stage_carrots')) return stage;
+  return {
+    ...stage,
+    duration: Math.max(1, Number(query.get('stage_duration')) || stage.duration),
+    carrots: Math.max(0, Number(query.get('stage_carrots')) || 0),
+  };
+}
+
+let activeStage = withDebugGoal(getStage(progress.stage));
+let gameMode = query.get('mode') === 'endless' && progress.stage >= 3 ? 'endless' : 'campaign';
+let activeCharacter = getCharacter(
+  query.get('character') || (gameMode === 'endless' ? progress.selected : activeStage.characterKey),
+);
+let resultKind = 'failed';
+let shopOpen = false;
+
+function saveProgress() {
+  progress = { ...progress, _lastActive: Date.now() };
+  localStorage.setItem(SAVE_KEY, JSON.stringify(progress));
+  if (isInAigram && gameUuid) {
+    window.clearTimeout(cloudSaveTimer);
+    cloudSaveTimer = window.setTimeout(() => {
+      postAigramAPI('/note/aigram/ai/game/save/data', {
+        session_id: gameUuid,
+        resource_data: JSON.stringify(progress),
+      });
+    }, 1000);
+  }
+}
 
 const app = document.querySelector('#app');
 app.dataset.identitySource = query.get('user_name')?.trim() ? 'debug' : 'fallback';
@@ -98,8 +192,18 @@ app.innerHTML = `
   <section class="vr-stage" aria-label="${t('title')}">
     <div class="vr-world" id="world"></div>
     <div class="vr-hud" aria-hidden="true">
-      <span class="vr-hud__label">${t('distance')}</span>
+      <span class="vr-hud__label" id="hud-label">${gameMode === 'campaign' ? t('stage', { n: activeStage.id }) : t('distance')}</span>
       <strong class="vr-hud__value" id="distance">0</strong>
+      <span class="vr-hud__mission" id="mission">${gameMode === 'campaign' ? t('stageProgress', { time: 0, carrots: 0, goal: activeStage.carrots }) : ''}</span>
+    </div>
+    <button class="vr-icon-button vr-icon-button--cast" id="cast" type="button" aria-label="${t('wardrobe')}">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M8.5 8.2V6.8A3.5 3.5 0 0 1 12 3.3a3.5 3.5 0 0 1 3.5 3.5v1.4M5 20v-7.2l3.5-2.1 3.5 2.1 3.5-2.1 3.5 2.1V20H5Z"/>
+      </svg>
+    </button>
+    <div class="vr-wallet" id="wallet" aria-label="${t('wallet')}">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21c4-3.5 6-7 6-11a6 6 0 0 0-12 0c0 4 2 7.5 6 11Zm0-11c-3-2.7-4.7-4.7-5-7 2.8.2 4.5 1.5 5 4 .5-2.5 2.2-3.8 5-4-.3 2.3-2 4.3-5 7Z"/></svg>
+      <strong id="wallet-value">${progress.wallet}</strong>
     </div>
     <button class="vr-icon-button" id="sound" type="button" aria-label="${t('soundOn')}">
       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -115,9 +219,9 @@ app.innerHTML = `
     </div>
     <div class="vr-result" id="result" hidden>
       <section class="vr-result__card" aria-labelledby="result-heading">
-        <p class="vr-result__eyebrow">${t('gameOver')}</p>
+        <p class="vr-result__eyebrow" id="result-eyebrow">${t('gameOver')}</p>
         <h2 class="vr-result__score" id="result-heading">
-          <span id="result-distance">0</span><small>${t('meters')}</small>
+          <span id="result-distance">0</span><small id="result-unit">${t('meters')}</small>
         </h2>
         <p class="vr-result__runner" id="result-name"></p>
         <p class="vr-result__details">
@@ -158,6 +262,25 @@ app.innerHTML = `
         <div class="vr-leaderboard__body" id="leaderboard-body"></div>
       </section>
     </div>
+    <div class="vr-shop" id="shop" hidden>
+      <button class="vr-shop__scrim" type="button" data-close-shop aria-label="${t('closeWardrobe')}"></button>
+      <section class="vr-shop__panel" role="dialog" aria-modal="true" aria-labelledby="shop-title">
+        <header class="vr-shop__header">
+          <div>
+            <span>${t('wallet')} · <strong id="shop-wallet">${progress.wallet}</strong></span>
+            <h2 id="shop-title">${t('wardrobe')}</h2>
+          </div>
+          <button class="vr-shop__close" id="shop-close" type="button" aria-label="${t('closeWardrobe')}">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+          </button>
+        </header>
+        <p class="vr-shop__notice" id="shop-notice" aria-live="polite"></p>
+        <button class="vr-shop__mode" id="mode-toggle" type="button"${progress.stage < 3 ? ' hidden' : ''}>
+          ${gameMode === 'endless' ? t('campaign') : t('endless')}
+        </button>
+        <div class="vr-shop__grid" id="shop-grid"></div>
+      </section>
+    </div>
     <div class="vr-error" id="error" hidden>
       <p>${t('unsupported')}</p>
       <button id="retry" type="button">${t('retry')}</button>
@@ -168,10 +291,17 @@ app.innerHTML = `
 const elements = {
   world: document.querySelector('#world'),
   distance: document.querySelector('#distance'),
+  hudLabel: document.querySelector('#hud-label'),
+  mission: document.querySelector('#mission'),
+  cast: document.querySelector('#cast'),
+  wallet: document.querySelector('#wallet'),
+  walletValue: document.querySelector('#wallet-value'),
   sound: document.querySelector('#sound'),
   gesture: document.querySelector('#gesture'),
   result: document.querySelector('#result'),
+  resultEyebrow: document.querySelector('#result-eyebrow'),
   resultDistance: document.querySelector('#result-distance'),
+  resultUnit: document.querySelector('#result-unit'),
   resultName: document.querySelector('#result-name'),
   carrotLine: document.querySelector('#carrot-line'),
   resultRank: document.querySelector('#result-rank'),
@@ -184,6 +314,12 @@ const elements = {
   leaderboard: document.querySelector('#leaderboard'),
   leaderboardBody: document.querySelector('#leaderboard-body'),
   leaderboardClose: document.querySelector('#leaderboard-close'),
+  shop: document.querySelector('#shop'),
+  shopGrid: document.querySelector('#shop-grid'),
+  shopWallet: document.querySelector('#shop-wallet'),
+  shopNotice: document.querySelector('#shop-notice'),
+  shopClose: document.querySelector('#shop-close'),
+  modeToggle: document.querySelector('#mode-toggle'),
   error: document.querySelector('#error'),
   retry: document.querySelector('#retry'),
 };
@@ -197,8 +333,7 @@ let ready = false;
 let gameEnded = false;
 let awaitingFirstJump = !baseline;
 let offscreen = false;
-const gameUuid = getGameUuid();
-const canRank = Boolean(isInAigram && telegramId && gameUuid && !baseline);
+const canRank = Boolean(isInAigram && telegramId && gameUuid && !baseline && gameMode === 'endless');
 const leaderboardState = {
   rows: [],
   loaded: false,
@@ -434,6 +569,111 @@ async function submitRunScore(score, oldBest, resultRun) {
   }
 }
 
+function updateWallet() {
+  elements.walletValue.textContent = String(progress.wallet);
+  elements.shopWallet.textContent = String(progress.wallet);
+}
+
+function characterMedia(character) {
+  if (character.spriteUrl) {
+    const image = document.createElement('img');
+    image.src = character.spriteUrl;
+    image.alt = '';
+    image.draggable = false;
+    return image;
+  }
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 80 80');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.classList.add('vr-shop__rabbit-mark');
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('d', 'M28 33 22 8l10 3 5 20m15 2 6-25-10 3-5 20M20 48c0-13 8-21 20-21s20 8 20 21-8 23-20 23-20-10-20-23Zm10-3h3m14 0h3M35 57c3 2 7 2 10 0');
+  svg.appendChild(path);
+  return svg;
+}
+
+function renderShop() {
+  elements.shopGrid.replaceChildren();
+  updateWallet();
+  elements.modeToggle.hidden = progress.stage < 3;
+  elements.modeToggle.textContent = gameMode === 'endless' ? t('campaign') : t('endless');
+  CHARACTER_ROSTER.forEach((character) => {
+    const owned = progress.unlocked.includes(character.key);
+    const equipped = gameMode === 'endless' && progress.selected === character.key;
+    const trial = gameMode === 'campaign' && activeStage.characterKey === character.key && !owned;
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = `vr-shop__item${equipped ? ' is-equipped' : ''}${trial ? ' is-trial' : ''}`;
+    card.appendChild(characterMedia(character));
+    const copyBox = document.createElement('span');
+    copyBox.className = 'vr-shop__item-copy';
+    const name = document.createElement('strong');
+    name.textContent = character.name[locale];
+    const state = document.createElement('small');
+    state.textContent = equipped
+      ? t('equipped')
+      : trial ? t('trial')
+        : owned ? t('owned')
+          : t('buy', { price: character.price });
+    copyBox.append(name, state);
+    card.appendChild(copyBox);
+    card.addEventListener('click', async () => {
+      elements.shopNotice.textContent = '';
+      if (!owned && !trial) {
+        if (progress.wallet < character.price) {
+          elements.shopNotice.textContent = t('insufficient');
+          card.classList.add('is-denied');
+          window.setTimeout(() => card.classList.remove('is-denied'), 260);
+          tone(140, 110, .09, 'square', 0, .035);
+          tone(140, 110, .09, 'square', .1, .035);
+          return;
+        }
+        progress.wallet -= character.price;
+        progress.unlocked = [...progress.unlocked, character.key];
+        if (gameMode === 'endless') progress.selected = character.key;
+        saveProgress();
+        updateWallet();
+        elements.shopNotice.textContent = t('purchaseSuccess', { name: character.name[locale] });
+        playUnlock();
+        if (gameMode === 'endless' && world) {
+          activeCharacter = character;
+          await world.setCharacter(character);
+        }
+        renderShop();
+        return;
+      }
+      if (owned) {
+        progress.selected = character.key;
+        saveProgress();
+        if (gameMode === 'endless' && world) {
+          activeCharacter = character;
+          await world.setCharacter(character);
+        }
+        renderShop();
+      }
+    });
+    elements.shopGrid.appendChild(card);
+  });
+}
+
+function openShop() {
+  shopOpen = true;
+  elements.shopNotice.textContent = '';
+  renderShop();
+  elements.shop.hidden = false;
+  requestAnimationFrame(() => elements.shop.classList.add('is-visible'));
+  updatePauseState();
+}
+
+function closeShop() {
+  shopOpen = false;
+  elements.shop.classList.remove('is-visible');
+  window.setTimeout(() => {
+    if (!shopOpen) elements.shop.hidden = true;
+  }, 220);
+  updatePauseState();
+}
+
 async function loadIdentity() {
   if (query.get('user_name')?.trim()) return;
   if (!isInAigram || !telegramId) return;
@@ -451,6 +691,45 @@ async function loadIdentity() {
   }
 }
 loadIdentity();
+
+async function hydrateCloudProgress() {
+  if (!isInAigram || !gameUuid || !telegramId) return;
+  try {
+    const response = await callAigramAPI(
+      `/note/aigram/ai/game/get/data/list?session_id=${encodeURIComponent(gameUuid)}`,
+      'GET',
+    );
+    const rows = Array.isArray(response?.data) ? response.data : [];
+    const mine = rows.find((row) => String(row.user_id) === String(telegramId));
+    if (!mine?.resource_data) return;
+    const cloud = JSON.parse(mine.resource_data);
+    if ((Number(cloud._lastActive) || 0) <= (progress._lastActive || 0)) return;
+    progress = {
+      stage: Math.max(1, Math.min(STAGES.length, Number(cloud.stage) || 1)),
+      wallet: Math.max(0, Number(cloud.wallet) || 0),
+      unlocked: Array.from(new Set(['original/rabbit', ...(cloud.unlocked || [])])),
+      selected: cloud.selected || 'original/rabbit',
+      _lastActive: Number(cloud._lastActive) || 0,
+    };
+    localStorage.setItem(SAVE_KEY, JSON.stringify(progress));
+    if (awaitingFirstJump && gameMode === 'campaign') {
+      activeStage = withDebugGoal(getStage(progress.stage));
+      activeCharacter = getCharacter(activeStage.characterKey);
+      elements.hudLabel.textContent = t('stage', { n: activeStage.id });
+      elements.mission.textContent = t('stageProgress', {
+        time: 0,
+        carrots: 0,
+        goal: activeStage.carrots,
+      });
+      if (world) await world.startRun(activeCharacter, activeStage);
+    }
+    updateWallet();
+    renderShop();
+  } catch {
+    // Local progression remains authoritative when the bridge is unavailable.
+  }
+}
+void hydrateCloudProgress();
 
 function getAudioContext() {
   if (muted) return null;
@@ -499,8 +778,17 @@ function playGameOver() {
   [196, 164, 130].forEach((frequency, index) => tone(frequency, frequency, 0.24, 'sine', index * 0.15, 0.05));
 }
 
+function playLevelComplete() {
+  [392, 523, 659, 784].forEach((frequency, index) => tone(frequency, frequency, .16, 'triangle', index * .1, .055));
+}
+
+function playUnlock() {
+  tone(440, 880, .28, 'triangle', 0, .055);
+  tone(660, 660, .12, 'sine', .18, .04);
+}
+
 function updatePauseState() {
-  world?.setPaused(awaitingFirstJump || document.hidden || offscreen);
+  world?.setPaused(awaitingFirstJump || document.hidden || offscreen || shopOpen);
 }
 
 document.addEventListener('visibilitychange', updatePauseState);
@@ -519,16 +807,29 @@ function showGestureGuide() {
 }
 
 function onGameOver(result) {
+  resultKind = 'failed';
   gameEnded = true;
   document.querySelector('.vr-stage').classList.add('is-ended');
   playGameOver();
   const score = Math.max(0, Math.round(result.distance));
   const resultRun = runNumber;
   const oldBest = preRunBest;
+  elements.resultEyebrow.textContent = gameMode === 'campaign' ? t('levelFailed') : t('gameOver');
   elements.resultDistance.textContent = String(score);
-  elements.resultName.textContent = playerName;
-  elements.carrotLine.textContent = t('carrots', { count: result.carrots });
-  elements.resultRank.textContent = canRank ? t('rankPending') : 'AlterU';
+  elements.resultUnit.textContent = t('meters');
+  elements.resultName.textContent = gameMode === 'campaign' ? activeCharacter.name[locale] : playerName;
+  elements.carrotLine.textContent = gameMode === 'campaign'
+    ? t('levelResult', {
+      time: Math.floor(result.elapsed || 0),
+      carrots: result.carrots,
+      goal: activeStage.carrots,
+    })
+    : t('carrots', { count: result.carrots });
+  elements.resultRank.textContent = gameMode === 'campaign'
+    ? t('stage', { n: activeStage.id })
+    : canRank ? t('rankPending') : 'AlterU';
+  elements.leaders.hidden = gameMode === 'campaign';
+  elements.replay.textContent = t('replay');
   window.setTimeout(() => {
     elements.result.hidden = false;
     requestAnimationFrame(() => elements.result.classList.add('is-visible'));
@@ -536,14 +837,48 @@ function onGameOver(result) {
   void submitRunScore(score, oldBest, resultRun);
 }
 
+function onLevelComplete(result) {
+  resultKind = 'complete';
+  gameEnded = true;
+  document.querySelector('.vr-stage').classList.add('is-ended', 'is-complete');
+  playLevelComplete();
+  if (!progress.unlocked.includes(activeCharacter.key)) {
+    progress.unlocked = [...progress.unlocked, activeCharacter.key];
+    progress.selected = activeCharacter.key;
+    playUnlock();
+  }
+  if (activeStage.id < STAGES.length) progress.stage = Math.max(progress.stage, activeStage.id + 1);
+  saveProgress();
+  renderShop();
+  elements.resultEyebrow.textContent = activeStage.id === STAGES.length ? t('allClear') : t('levelComplete');
+  elements.resultDistance.textContent = String(Math.floor(result.elapsed));
+  elements.resultUnit.textContent = t('seconds');
+  elements.resultName.textContent = activeCharacter.name[locale];
+  elements.carrotLine.textContent = t('levelResult', {
+    time: Math.floor(result.elapsed),
+    carrots: result.carrots,
+    goal: activeStage.carrots,
+  });
+  elements.resultRank.textContent = t('owned');
+  elements.leaders.hidden = true;
+  elements.replay.textContent = activeStage.id === STAGES.length ? t('replay') : t('nextRunner');
+  window.setTimeout(() => {
+    elements.result.hidden = false;
+    requestAnimationFrame(() => elements.result.classList.add('is-visible'));
+  }, 320);
+}
+
 async function initWorld() {
   if (world || loadingWorld) return;
   loadingWorld = true;
   try {
     const { createRabbitWorld } = await import('./rabbit-world.js');
-    world = createRabbitWorld(elements.world, {
+    world = await createRabbitWorld(elements.world, {
       baseline,
       startPaused: !baseline,
+      character: baseline ? getCharacter('original/rabbit') : activeCharacter,
+      stageGoal: gameMode === 'campaign' ? activeStage : null,
+      debugCatchAfter: query.get('catch_after'),
       reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,
       callbacks: {
         onReady() {
@@ -554,16 +889,30 @@ async function initWorld() {
         onDistance(value) {
           elements.distance.textContent = String(value).padStart(baseline ? 3 : 1, '0');
         },
+        onProgress(value) {
+          if (gameMode !== 'campaign') return;
+          elements.mission.textContent = t('stageProgress', {
+            time: Math.min(activeStage.duration, Math.floor(value.elapsed)),
+            carrots: value.carrots,
+            goal: activeStage.carrots,
+          });
+        },
         onBonus() {
+          if (!baseline) {
+            progress.wallet += 1;
+            saveProgress();
+            updateWallet();
+          }
           playBonus();
           app.classList.add('vr-bonus');
           window.setTimeout(() => app.classList.remove('vr-bonus'), 220);
         },
         onHit: playHit,
         onGameOver,
+        onLevelComplete,
         onReplay() {
           gameEnded = false;
-          document.querySelector('.vr-stage').classList.remove('is-ended');
+          document.querySelector('.vr-stage').classList.remove('is-ended', 'is-complete');
           elements.result.classList.remove('is-visible');
           window.setTimeout(() => { elements.result.hidden = true; }, 260);
         },
@@ -590,11 +939,37 @@ function jumpFromIntent(event) {
 }
 
 elements.world.addEventListener('pointerdown', jumpFromIntent);
-elements.replay.addEventListener('pointerdown', (event) => {
+elements.replay.addEventListener('pointerdown', async (event) => {
   event.stopPropagation();
   runNumber += 1;
   snapshotPreRunBest();
-  world?.replay();
+  if (gameMode === 'campaign') {
+    if (resultKind === 'complete' && activeStage.id < STAGES.length) {
+      activeStage = withDebugGoal(getStage(activeStage.id + 1));
+      activeCharacter = getCharacter(activeStage.characterKey);
+    }
+    elements.hudLabel.textContent = t('stage', { n: activeStage.id });
+    elements.mission.textContent = t('stageProgress', {
+      time: 0,
+      carrots: 0,
+      goal: activeStage.carrots,
+    });
+    await world?.startRun(activeCharacter, activeStage);
+  } else {
+    world?.replay();
+  }
+});
+elements.cast.addEventListener('click', (event) => {
+  event.stopPropagation();
+  openShop();
+});
+elements.shopClose.addEventListener('click', closeShop);
+document.querySelector('[data-close-shop]').addEventListener('click', closeShop);
+elements.modeToggle.addEventListener('click', () => {
+  const url = new URL(location.href);
+  if (gameMode === 'endless') url.searchParams.delete('mode');
+  else url.searchParams.set('mode', 'endless');
+  location.href = url.href;
 });
 elements.leaders.addEventListener('click', () => {
   elements.leaderboard.hidden = false;
@@ -618,6 +993,10 @@ elements.sound.addEventListener('click', (event) => {
   elements.sound.setAttribute('aria-label', muted ? t('soundOff') : t('soundOn'));
 });
 window.addEventListener('keydown', (event) => {
+  if (event.code === 'Escape' && !elements.shop.hidden) {
+    closeShop();
+    return;
+  }
   if (event.code === 'Escape' && !elements.leaderboard.hidden) {
     closeLeaderboard();
     return;
@@ -632,12 +1011,17 @@ window.addEventListener('keydown', (event) => {
     }
     elements.gesture.classList.add('is-hidden');
     if (world?.jump()) playJump();
-  } else if (event.code === 'Enter' && gameEnded && elements.leaderboard.hidden) {
+  } else if (event.code === 'Enter' && gameEnded && elements.leaderboard.hidden && elements.shop.hidden) {
     runNumber += 1;
     snapshotPreRunBest();
-    world?.replay();
+    if (gameMode === 'campaign') {
+      elements.replay.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+    } else {
+      world?.replay();
+    }
   }
 });
 
+renderShop();
 void refreshLeaderboard();
 void initWorld();

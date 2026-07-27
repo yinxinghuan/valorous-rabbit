@@ -3,10 +3,10 @@
 ## 1. 技术栈
 
 - Vite 6 + 原生 JavaScript/TypeScript，`base: './'`，构建输出 `dist/`。
-- Three.js 0.80.1 WebGL 渲染，保留上游 Geometry API、FlatShading、球面跑道与低多边形角色结构。
+- Three.js 0.80.1 WebGL 渲染，保留上游 Geometry API、FlatShading、球面跑道、程序化兔子和狼；共享角色以静态 GLB 2.0 载入同一个旧版 Three runtime。
 - GSAP 3.15，通过本地 `TweenMax` 兼容薄层复用原作的时序与 easing 调用。
 - CSS 响应式 UI、本地 Creepster v13 WOFF2 距离字形、Pointer Events、Web Audio API 合成反馈、IntersectionObserver/Visibility API 生命周期管理。
-- Aigram canonical bridge：`src/shared/runtime/bridge.ts`；当前用户资料通过 `/note/telegram/user/get/info/by/telegram_id` 获取，排行榜使用游戏 UUID 对应的 rank save/list 接口。
+- Aigram canonical bridge：`src/shared/runtime/bridge.ts`；当前用户资料通过 `/note/telegram/user/get/info/by/telegram_id` 获取，角色进度使用 game save/list 接口，排行榜仅在无尽模式使用游戏 UUID 对应的 rank save/list 接口。
 - 永久游戏 UUID：`c4489aba-61f1-45f4-aea6-c217e798462a`，由 `index.html` 的 `game-uuid` meta 注入。
 
 ### 上游接收与许可
@@ -27,6 +27,9 @@
 index.html                         # 移动 viewport、UUID、首屏关键底色、Guest Shell
 src/main.js                        # i18n、状态/UI、触控、身份、排行榜、通知、音频与首帧握手
 src/rabbit-world.js                # 上游 Three.js 场景、角色、碰撞、追逐与渲染循环
+src/character-roster.js            # 12 角色、12 关目标、价格与穷举动作 profile
+src/portable-glb-loader.js         # 旧 Three.js 共运行时的静态 GLB 2.0 适配器
+src/assets/characters/             # 11 个正式共享 GLB 与商店透明 sprite
 src/style.css                      # 视觉系统、Guest Shell 安全区与双尺寸响应式
 src/fonts/creepster-latin-v13.woff2 # Get Off My Grave 同款距离展示字体
 src/shared/runtime/                # Aigram canonical bridge 与 UUID resolution
@@ -45,9 +48,15 @@ _qa/platform-harness.html          # Aigram iframe bridge + 无 CORS 头像模�
 
 ### 状态、主循环与渲染
 
-`main.js` 维护 `loading → guided idle → running → result/error` UI 状态；`rabbit-world.js` 维护上游 `play → gameOver → readyToReplay` 场景状态。页面打开后立即通过动态 `import()` 下载 Three.js/GSAP 场景并调用 `createRabbitWorld()`；所需角色、球面、灯光与障碍创建完成且 renderer 实际完成一帧后，`onReady` 显示场景并暂停玩法，等待第一次真实操作。
+`main.js` 维护 `loading → guided idle → running → result/error` 主状态，以及独立的 `shop open/closed`、`campaign/endless` 与 `stage 1…12` 子状态；`rabbit-world.js` 维护 `play → gameOver/levelComplete → readyToReplay` 场景状态。页面打开后立即通过动态 `import()` 下载场景模块并调用异步 `createRabbitWorld()`；当前 GLB、球面、灯光与障碍创建完成且 renderer 实际完成一帧后，`onReady` 显示场景并暂停玩法，等待第一次真实操作。
 
-渲染循环沿用原作公式：球面每帧旋转 `delta × 0.03 × speed`，距离累加 `delta × speed`，狼以 `monsterAcceleration=0.004` 追随目标位置。页面隐藏或可见比例低于 25% 时同时暂停 RAF 更新和 GSAP global timeline；恢复时丢弃暂停期间的 delta。
+渲染循环沿用原作公式：球面每帧旋转 `delta × 0.03 × speed`，距离累加 `delta × speed`。主线狼以 `monsterAcceleration=0.0011` 追随目标位置，无尽模式为 `0.004`；速度每 3 秒增加 2、上限 48。主线每帧同时检查目标时长与任务胡萝卜，二者都完成后触发 `levelComplete`。页面隐藏、可见比例低于 25% 或角色商店打开时，同时暂停逻辑更新和 GSAP global timeline；恢复时丢弃暂停期间的 delta。
+
+### 角色资产与动作
+
+`character-roster.js` 显式列出首发 12 名角色；`import.meta.glob` 只负责把清单中的相对文件转为构建 URL，不承担库存发现。原作兔子继续使用程序化 `Hero`，其余 11 名角色来自 `_lowpoly_lab/assets/ASSETS.json` 的正式 GLB。`portable-glb-loader.js` 解析 GLB 2.0 JSON/BIN、节点层级、TRS、材质、交错 accessor 与索引，构建旧版 Three `BufferGeometry`，避免为了 GLTFLoader 引入第二套 Three runtime。
+
+`ImportedHero` 加载后用 `Box3` 同时限制高度 27、宽度 22、深度 22 个世界单位，按模型底面落地并保留命名 rig。`rig_legL / rig_legR / rig_armL / rig_armR` 的初始 position/rotation/scale 分别缓存为 rest pose；每帧动作只叠加在各自 rest pose 上。11 名角色穷举为 quickstep、shuffle、lurch、prowl、float、piston、charge、spring、waddle、scuttle、heroic，不存在通用 fallback。每名角色覆盖 run、jump anticipation、land recovery、hit recoil 与 caught pose；无四肢 rig 的幽灵和动物使用显式 root motion。
 
 ### 屏幕适配与输入
 
@@ -57,26 +66,33 @@ Three.js renderer 跟随 `.vr-world` 的 ResizeObserver。产品竖屏相机 z=2
 
 ### 碰撞、反馈与音频
 
-胡萝卜半径 20，触发原作 20 个方块粒子并推远狼；刺猬半径 10，飞出并拉近狼。主线程触控确认不依赖网络。Web Audio 在首次用户手势后创建，场景加载本身不请求音频权限；分别合成起跳、奖励、撞击、结算音，音频失败不阻塞游戏。`prefers-reduced-motion` 关闭撞击闪屏并把奖励粒子降到 5 个。
+胡萝卜半径 20，触发原作 20 个方块粒子、把狼推远并立即把 1 根胡萝卜写入永久钱包；刺猬半径 10，飞出并拉近狼。主线失败不回滚已拾取胡萝卜；通关立即把当关试用角色加入已解锁 roster。主线程触控确认不依赖网络。Web Audio 在首次用户手势后创建，分别合成起跳、奖励、撞击、关卡完成与购买/解锁音；音频失败不阻塞游戏。`prefers-reduced-motion` 关闭撞击闪屏并缩小角色根弹跳与倾斜。
 
 ### 身份、多语言与平台
 
-`?user_name=` 只用于调试覆盖；AlterU 内通过 canonical `callAigramAPI()` 获取 `data.name`，旧 `data.user_name` 仅兼容；平台外使用 `AlterU`。用户名只进入结算排版，不把源码作者当玩家。`_qa/platform-harness.html` 返回不同源、无 `Access-Control-Allow-Origin` 的头像 URL 与长用户名；由于本效果不是图像驱动，不读取或替换头像，断言 `data-identity-source="player"`。
+`?user_name=` 只用于调试覆盖；AlterU 内通过 canonical `callAigramAPI()` 获取 `data.name`，旧 `data.user_name` 仅兼容；平台外使用 `AlterU`。用户名只进入无尽结算排版，不把源码作者当玩家。`_qa/platform-harness.html` 返回不同源、无 `Access-Control-Allow-Origin` 的头像 URL 与长用户名；由于本效果不是图像驱动，不读取或替换头像，断言 `data-identity-source="player"`。
 
 中英文所有用户可见文案由 `t()` 映射；`localStorage.game_locale` 可强制 `zh/en`。
 
+### 进度、商店与云同步
+
+本地镜像 `valorous_rabbit_cast_v1` 是运行期唯一可变真源，字段为 `stage / wallet / unlocked / selected / _lastActive`。拾取、购买、装备和过关先同步写入 localStorage；AlterU 内再以 1 秒 debounce 调用 `/note/aigram/ai/game/save/data`。首次加载通过 `/note/aigram/ai/game/get/data/list` 读取自己的记录，只在云端 `_lastActive` 更新时替换本地镜像，避免连续操作用一次性旧快照覆盖刚写入的角色。
+
+商店使用 2 列可滚动 DOM 网格，角色卡采用 `click`，不在触摸滚动起点触发购买。当前关角色显示“本关试用”，通关直接解锁；也可提前按 60/120/220/360/560 五档价格购买。第 3 关开放无尽模式入口；无尽使用 `selected` 角色，主线继续固定使用当关试用角色。
+
 ### 排行榜与跨用户交互
 
-AlterU 内使用永久游戏 UUID 调用 `/note/aigram/ai/game/rank/score/save` 提交整数距离，并通过 `/note/aigram/ai/game/rank/score/list/by/session_id` 读取榜单。结算保持透明开放式排版，只增加一条紧凑冠军入口；完整榜单由用户主动打开，显示名次、头像、截断后的用户名和距离。自己的行不显示头像，只显示强调色“你 / YOU”；其他玩家行使用 `click` 触发 `openAigramProfile(user_id)`，榜单滚动容器使用 `touch-action: pan-y`。
+排行榜只在无尽模式启用。AlterU 内使用永久游戏 UUID 调用 `/note/aigram/ai/game/rank/score/save` 提交整数距离，并通过 `/note/aigram/ai/game/rank/score/list/by/session_id` 读取榜单；主线关卡不会污染全局距离排名。结算保持透明开放式排版，只增加一条紧凑冠军入口；完整榜单由用户主动打开，显示名次、头像、截断后的用户名和距离。自己的行不显示头像，只显示强调色“你 / YOU”；其他玩家行使用 `click` 触发 `openAigramProfile(user_id)`，榜单滚动容器使用 `touch-action: pan-y`。
 
 每轮首次操作或重试前，从已成功加载的榜单快照当前玩家旧最佳成绩。提交刷新后，仅当新距离高于旧最佳时，从 `(旧最佳, 新距离)` 区间里选分数最高且非自己的一个玩家，通过 `/note/aigram/ai/game/record/play` 发送一次 `score_beat` 通知。榜单尚未成功加载时跳过该轮通知，避免把未知旧最佳误判为 0。平台外不请求榜单，主动打开入口时显示 AlterU 下载提示。
 
 ## 4. 扩展点
 
-- 调整追逐速度、球面半径、碰撞距离和狼位置：修改 `src/rabbit-world.js` 顶部常量。
-- 更换触控闭环、结算内容、身份文案和音频：修改 `src/main.js`。
+- 调整关卡时长、任务数量、首发角色、价格或动作 profile：修改 `src/character-roster.js`；添加角色时必须同步正式 GLB/sprite 并通过 consumer validator。
+- 调整追逐速度、球面半径、碰撞距离、角色尺寸带和狼位置：修改 `src/rabbit-world.js`。
+- 更换触控闭环、角色商店、解锁规则、结算内容、身份文案和音频：修改 `src/main.js`。
 - 调整颜色、相机安全区、窄屏布局和动效：修改 `src/style.css` 与 `doc/visual.md`。
-- 替换 3D 模型：保持 Hero/Monster/Carrot/Hedgehog/Fir 构造器边界；升级 Three.js 前先把顶点编辑迁移到 BufferGeometry。
+- 替换 3D 模型：共享角色保持 `<category>__<id>` 身份、正式 inventory GLB 与命名 rig；升级 Three.js 前先把原作程序化 Geometry 迁移到 BufferGeometry，再删除 `portable-glb-loader.js`。
 - 修改排行榜字段、冠军入口、资料点击或 `score_beat` 通知：修改 `src/main.js` 的 leaderboard state、`submitRunScore()` 与 `sendBeatNotify()`；视觉规则位于 `src/style.css` 的 `.vr-champion` / `.vr-leaderboard`。
 - 发布元数据：`meta.json`、`public/poster.png`、`games/games.json` 和 `games/posters/valorous-rabbit.png`。
 
