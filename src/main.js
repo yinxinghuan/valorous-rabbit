@@ -11,9 +11,6 @@ const locale = localeOverride === 'en' || localeOverride === 'zh'
 const copy = {
   zh: {
     title: '勇兔奔野',
-    subtitle: '轻触起跳，追胡萝卜，甩开狼',
-    wake: '唤醒奔跑',
-    waking: '正在唤醒原野',
     distance: '距离',
     jump: '轻触起跳',
     gameOver: '被追上了',
@@ -29,9 +26,6 @@ const copy = {
   },
   en: {
     title: 'Valorous Rabbit',
-    subtitle: 'Tap to leap, chase carrots, outrun the wolf',
-    wake: 'Wake the run',
-    waking: 'Waking the meadow',
     distance: 'Distance',
     jump: 'Tap to jump',
     gameOver: 'Caught at last',
@@ -80,22 +74,6 @@ app.innerHTML = `
       <svg viewBox="0 0 24 24"><path d="${materialTouchPath}"/></svg>
       <span>${baseline ? t('baselineHint') : t('jump')}</span>
     </div>
-    <div class="vr-wake" id="wake">
-      <div class="vr-wordmark">
-        <span class="vr-wordmark__eyebrow">ALTERU FIELD NOTE 01</span>
-        <h1>${t('title')}</h1>
-        <p>${t('subtitle')}</p>
-      </div>
-      <div class="vr-sleeping-scene" aria-hidden="true">
-        <div class="vr-sleeping-scene__wolf"></div>
-        <div class="vr-sleeping-scene__rabbit"><i></i><b></b></div>
-        <div class="vr-sleeping-scene__ground"></div>
-      </div>
-      <button class="vr-wake__button" id="wake-button" type="button">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="${materialTouchPath}"/></svg>
-        <span>${t('wake')}</span>
-      </button>
-    </div>
     <div class="vr-result" id="result" hidden>
       <p class="vr-result__eyebrow">${t('gameOver')}</p>
       <h2 id="result-line"></h2>
@@ -112,8 +90,6 @@ app.innerHTML = `
 
 const elements = {
   world: document.querySelector('#world'),
-  wake: document.querySelector('#wake'),
-  wakeButton: document.querySelector('#wake-button'),
   distance: document.querySelector('#distance'),
   sound: document.querySelector('#sound'),
   gesture: document.querySelector('#gesture'),
@@ -132,7 +108,7 @@ let muted = false;
 let audioContext = null;
 let ready = false;
 let gameEnded = false;
-let demoTimer = 0;
+let awaitingFirstJump = !baseline;
 let offscreen = false;
 
 async function loadIdentity() {
@@ -201,7 +177,7 @@ function playGameOver() {
 }
 
 function updatePauseState() {
-  world?.setPaused(document.hidden || offscreen);
+  world?.setPaused(awaitingFirstJump || document.hidden || offscreen);
 }
 
 document.addEventListener('visibilitychange', updatePauseState);
@@ -211,20 +187,12 @@ const observer = new IntersectionObserver(([entry]) => {
 }, { threshold: [0, 0.25, 1] });
 observer.observe(app);
 
-function showGestureDemo() {
+function showGestureGuide() {
   if (baseline) {
     elements.gesture.classList.add('is-visible', 'is-baseline');
     return;
   }
   elements.gesture.classList.add('is-visible', 'is-demo');
-  demoTimer = window.setTimeout(() => {
-    if (!gameEnded && ready) world?.jump();
-    elements.gesture.classList.add('is-pressing');
-    window.setTimeout(() => {
-      elements.gesture.classList.remove('is-pressing');
-      elements.gesture.classList.add('is-hidden');
-    }, 650);
-  }, 600);
 }
 
 function onGameOver(result) {
@@ -242,21 +210,17 @@ function onGameOver(result) {
 async function initWorld() {
   if (world || loadingWorld) return;
   loadingWorld = true;
-  elements.wakeButton.disabled = true;
-  elements.wakeButton.querySelector('span').textContent = t('waking');
-  getAudioContext();
   try {
     const { createRabbitWorld } = await import('./rabbit-world.js');
     world = createRabbitWorld(elements.world, {
       baseline,
+      startPaused: !baseline,
       reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,
       callbacks: {
         onReady() {
           ready = true;
           elements.world.classList.add('is-ready');
-          elements.wake.classList.add('is-leaving');
-          window.setTimeout(() => { elements.wake.hidden = true; }, 450);
-          showGestureDemo();
+          showGestureGuide();
         },
         onDistance(value) {
           elements.distance.textContent = String(value).padStart(baseline ? 3 : 1, '0');
@@ -278,7 +242,6 @@ async function initWorld() {
     });
   } catch (error) {
     console.error(error);
-    elements.wake.hidden = true;
     elements.error.hidden = false;
   } finally {
     loadingWorld = false;
@@ -287,15 +250,15 @@ async function initWorld() {
 
 function jumpFromIntent(event) {
   if (!ready || gameEnded || event.target.closest('button,a')) return;
-  window.clearTimeout(demoTimer);
+  getAudioContext();
+  if (awaitingFirstJump) {
+    awaitingFirstJump = false;
+    world?.setPaused(false);
+  }
   elements.gesture.classList.add('is-hidden');
   if (world?.jump()) playJump();
 }
 
-elements.wakeButton.addEventListener('pointerdown', (event) => {
-  event.stopPropagation();
-  void initWorld();
-});
 elements.world.addEventListener('pointerdown', jumpFromIntent);
 elements.replay.addEventListener('pointerdown', (event) => {
   event.stopPropagation();
@@ -311,8 +274,16 @@ elements.sound.addEventListener('click', (event) => {
 window.addEventListener('keydown', (event) => {
   if ((event.code === 'Space' || event.code === 'ArrowUp') && ready && !gameEnded) {
     event.preventDefault();
+    getAudioContext();
+    if (awaitingFirstJump) {
+      awaitingFirstJump = false;
+      world?.setPaused(false);
+    }
+    elements.gesture.classList.add('is-hidden');
     if (world?.jump()) playJump();
   } else if (event.code === 'Enter' && gameEnded) {
     world?.replay();
   }
 });
+
+void initWorld();

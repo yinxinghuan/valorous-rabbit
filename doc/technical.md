@@ -43,7 +43,7 @@ _qa/platform-harness.html          # Aigram iframe bridge + 无 CORS 头像模�
 
 ### 状态、主循环与渲染
 
-`main.js` 维护 `wake → running → result/error` UI 状态；`rabbit-world.js` 维护上游 `play → gameOver → readyToReplay` 场景状态。Three.js/GSAP 场景通过动态 `import()` 延迟到首次主动轻触后才下载并调用 `createRabbitWorld()`；所需角色、球面、灯光与障碍创建完成且 renderer 实际完成一帧后，`onReady` 才移除唤醒层。
+`main.js` 维护 `loading → guided idle → running → result/error` UI 状态；`rabbit-world.js` 维护上游 `play → gameOver → readyToReplay` 场景状态。页面打开后立即通过动态 `import()` 下载 Three.js/GSAP 场景并调用 `createRabbitWorld()`；所需角色、球面、灯光与障碍创建完成且 renderer 实际完成一帧后，`onReady` 显示场景并暂停玩法，等待第一次真实操作。
 
 渲染循环沿用原作公式：球面每帧旋转 `delta × 0.03 × speed`，距离累加 `delta × speed`，狼以 `monsterAcceleration=0.004` 追随目标位置。页面隐藏或可见比例低于 25% 时同时暂停 RAF 更新和 GSAP global timeline；恢复时丢弃暂停期间的 delta。
 
@@ -51,11 +51,11 @@ _qa/platform-harness.html          # Aigram iframe bridge + 无 CORS 头像模�
 
 Three.js renderer 跟随 `.vr-world` 的 ResizeObserver。产品竖屏相机 z=205，baseline 保持 z=160；产品模式移除原作 5% 的前景树分支，避免树干覆盖核心动作，背景树、薄雾与球面仍使用原作代码。Guest Shell 存在时通过 `body:has(#alteru-guest-banner)` 把 HUD 再下移 72 px。
 
-唤醒、跳跃和重试使用 Pointer Events；Space/ArrowUp 跳跃、Enter 重试。Material `touch_app` ghost finger 在首帧后触发一次真实 `world.jump()`，而不是只播放无响应的手势动画。
+跳跃和重试使用 Pointer Events；Space/ArrowUp 跳跃、Enter 重试。Material `touch_app` ghost finger 在首帧后循环演示按压；第一次真实轻触会在同一帧移除引导、恢复世界更新、解锁 Web Audio 并执行 `world.jump()`，不会由教程替玩家自动操作。
 
 ### 碰撞、反馈与音频
 
-胡萝卜半径 20，触发原作 20 个方块粒子并推远狼；刺猬半径 10，飞出并拉近狼。主线程触控确认不依赖网络。Web Audio 在首次用户手势后创建，分别合成起跳、奖励、撞击、结算音；音频失败不阻塞游戏。`prefers-reduced-motion` 关闭撞击闪屏并把奖励粒子降到 5 个。
+胡萝卜半径 20，触发原作 20 个方块粒子并推远狼；刺猬半径 10，飞出并拉近狼。主线程触控确认不依赖网络。Web Audio 在首次用户手势后创建，场景加载本身不请求音频权限；分别合成起跳、奖励、撞击、结算音，音频失败不阻塞游戏。`prefers-reduced-motion` 关闭撞击闪屏并把奖励粒子降到 5 个。
 
 ### 身份、多语言与平台
 

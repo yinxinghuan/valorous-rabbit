@@ -1281,7 +1281,14 @@ function updateLevel(){
 function loop(){
   if (destroyed) return;
   rafId = requestAnimationFrame(loop);
-  if (isPaused) return;
+  if (isPaused) {
+    if (!firstFrameRendered) {
+      render();
+      firstFrameRendered = true;
+      callbacks.onReady?.();
+    }
+    return;
+  }
   delta = clock.getDelta();
   updateFloorRotation();
   
@@ -1438,8 +1445,11 @@ export function createRabbitWorld(element, options = {}) {
   baselineMode = Boolean(options.baseline);
   reducedMotion = Boolean(options.reducedMotion);
   destroyed = false;
-  isPaused = false;
+  isPaused = Boolean(options.startPaused);
   firstFrameRendered = false;
+  if (isPaused && typeof TweenMax.globalTimeScale === 'function') {
+    TweenMax.globalTimeScale(0);
+  }
   init();
 
   return {

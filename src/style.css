@@ -158,32 +158,6 @@ body:has(#alteru-guest-banner) .vr-icon-button {
   top: max(152px, calc(env(safe-area-inset-top) + 82px));
 }
 
-.vr-wake {
-  position: absolute;
-  inset: 0;
-  z-index: 10;
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  padding: max(92px, calc(env(safe-area-inset-top) + 26px)) 24px calc(max(24px, env(safe-area-inset-bottom)) + 16px);
-  background: var(--vr-bg);
-  transition: opacity 420ms ease, transform 420ms cubic-bezier(.2,.8,.2,1);
-}
-
-.vr-wake.is-leaving {
-  opacity: 0;
-  transform: scale(1.025);
-  pointer-events: none;
-}
-
-.vr-wordmark {
-  position: relative;
-  z-index: 2;
-  max-width: 440px;
-  margin: 0 auto;
-  text-align: center;
-}
-
-.vr-wordmark__eyebrow,
 .vr-result__eyebrow {
   margin: 0 0 10px;
   color: #8f665b;
@@ -192,117 +166,6 @@ body:has(#alteru-guest-banner) .vr-icon-button {
   letter-spacing: .18em;
 }
 
-.vr-wordmark h1 {
-  max-width: 9ch;
-  margin: 0 auto;
-  font-family: "Arial Narrow", "Roboto Condensed", "Noto Sans SC", sans-serif;
-  font-size: clamp(46px, 15vw, 74px);
-  font-weight: 800;
-  letter-spacing: -.055em;
-  line-height: .9;
-  text-wrap: balance;
-}
-
-.vr-wordmark p {
-  margin: 16px auto 0;
-  color: var(--vr-muted);
-  font-size: 16px;
-  line-height: 1.45;
-}
-
-.vr-sleeping-scene {
-  position: relative;
-  align-self: end;
-  width: min(110vw, 560px);
-  height: min(42vh, 340px);
-  margin: 0 auto -2px;
-}
-
-.vr-sleeping-scene__ground {
-  position: absolute;
-  left: 50%;
-  bottom: -48%;
-  width: 150%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: var(--vr-green);
-  transform: translateX(-50%);
-}
-
-.vr-sleeping-scene__rabbit,
-.vr-sleeping-scene__wolf {
-  position: absolute;
-  z-index: 2;
-  bottom: 17%;
-  background: var(--vr-rust);
-  filter: drop-shadow(12px 15px 0 rgb(65 108 82 / 16%));
-}
-
-.vr-sleeping-scene__rabbit {
-  left: 51%;
-  width: 76px;
-  height: 54px;
-  transform: skewY(-5deg);
-}
-
-.vr-sleeping-scene__rabbit::before,
-.vr-sleeping-scene__rabbit::after {
-  position: absolute;
-  top: -52px;
-  width: 17px;
-  height: 56px;
-  background: var(--vr-rust);
-  content: "";
-}
-
-.vr-sleeping-scene__rabbit::before {
-  left: 12px;
-  transform: rotate(-8deg);
-}
-
-.vr-sleeping-scene__rabbit::after {
-  left: 40px;
-  transform: rotate(8deg);
-}
-
-.vr-sleeping-scene__rabbit i {
-  position: absolute;
-  right: 12px;
-  top: 15px;
-  width: 7px;
-  height: 10px;
-  background: #fff;
-  box-shadow: 2px 1px 0 #2d1714;
-}
-
-.vr-sleeping-scene__rabbit b {
-  position: absolute;
-  right: -24px;
-  top: 25px;
-  width: 28px;
-  height: 20px;
-  background: #e07a57;
-}
-
-.vr-sleeping-scene__wolf {
-  left: 20%;
-  width: 94px;
-  height: 62px;
-  background: #100707;
-  transform: skewY(8deg);
-}
-
-.vr-sleeping-scene__wolf::after {
-  position: absolute;
-  right: -52px;
-  top: 14px;
-  width: 58px;
-  height: 28px;
-  background: #100707;
-  content: "";
-}
-
-.vr-wake__button,
 .vr-result button,
 .vr-error button {
   position: relative;
@@ -326,20 +189,9 @@ body:has(#alteru-guest-banner) .vr-icon-button {
   touch-action: manipulation;
 }
 
-.vr-wake__button:active,
 .vr-result button:active,
 .vr-error button:active {
   transform: translateY(2px);
-}
-
-.vr-wake__button:disabled {
-  opacity: .58;
-}
-
-.vr-wake__button svg {
-  width: 24px;
-  height: 24px;
-  fill: currentColor;
 }
 
 .vr-gesture {
@@ -367,20 +219,20 @@ body:has(#alteru-guest-banner) .vr-icon-button {
 
 .vr-gesture svg {
   position: relative;
-  width: 40px;
-  height: 40px;
-  fill: currentColor;
+  width: 54px;
+  height: 54px;
+  fill: rgb(42 30 28 / 92%);
+  filter:
+    drop-shadow(0 0 2px rgb(255 255 255 / 96%))
+    drop-shadow(0 0 8px rgb(255 255 255 / 88%))
+    drop-shadow(0 4px 5px rgb(42 30 28 / 28%));
   transform-origin: 50% 30%;
   transition: transform 160ms ease;
 }
 
 .vr-gesture.is-demo {
   bottom: 23%;
-  animation: vr-gesture-float 1.2s ease-in-out infinite;
-}
-
-.vr-gesture.is-pressing svg {
-  transform: scale(.82) translateY(4px);
+  animation: vr-gesture-float 1.4s ease-in-out infinite;
 }
 
 .vr-gesture__ring {
@@ -393,8 +245,12 @@ body:has(#alteru-guest-banner) .vr-icon-button {
   opacity: 0;
 }
 
-.vr-gesture.is-pressing .vr-gesture__ring {
-  animation: vr-gesture-ring 560ms ease-out;
+.vr-gesture.is-demo .vr-gesture__ring {
+  animation: vr-gesture-ring 1.4s ease-out infinite;
+}
+
+.vr-gesture.is-demo svg {
+  animation: vr-gesture-press 1.4s ease-in-out infinite;
 }
 
 .vr-gesture span:last-child {
@@ -405,6 +261,9 @@ body:has(#alteru-guest-banner) .vr-icon-button {
   letter-spacing: .08em;
   line-height: 1.3;
   text-align: center;
+  text-shadow:
+    0 0 4px rgb(255 255 255 / 96%),
+    0 0 10px rgb(255 255 255 / 72%);
   text-transform: uppercase;
 }
 
@@ -498,8 +357,14 @@ body:has(#alteru-guest-banner) .vr-icon-button {
 }
 
 @keyframes vr-gesture-ring {
-  0% { opacity: .8; transform: scale(.45); }
-  100% { opacity: 0; transform: scale(1.45); }
+  0%, 35% { opacity: 0; transform: scale(.45); }
+  48% { opacity: .8; }
+  88%, 100% { opacity: 0; transform: scale(1.45); }
+}
+
+@keyframes vr-gesture-press {
+  0%, 28%, 100% { transform: scale(1) translateY(0); }
+  44%, 56% { transform: scale(.82) translateY(4px); }
 }
 
 @keyframes vr-distance-bonus {
@@ -515,23 +380,6 @@ body:has(#alteru-guest-banner) .vr-icon-button {
 }
 
 @media (max-height: 620px) {
-  .vr-wake {
-    grid-template-rows: auto minmax(110px, 1fr) auto;
-    padding-top: max(84px, calc(env(safe-area-inset-top) + 18px));
-  }
-
-  .vr-wordmark h1 {
-    font-size: clamp(40px, 12vw, 56px);
-  }
-
-  .vr-wordmark p {
-    margin-top: 8px;
-  }
-
-  .vr-sleeping-scene {
-    height: 190px;
-  }
-
   .vr-result {
     top: 12%;
   }
