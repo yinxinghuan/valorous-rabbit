@@ -27,7 +27,8 @@
 
 ## 4. Typography
 
-- 展示/数字：`Arial Narrow`, `Roboto Condensed`, `"Noto Sans SC"`，700。
+- 距离数字：`Impact`, `Haettenschweiler`, `"Arial Narrow Bold"`, `"Avenir Next Condensed"`，400；以紧凑块面和 2 px 淡桃硬边错位呼应低多边形角色。
+- 其他展示文字：`Arial Narrow`, `Roboto Condensed`, `"Noto Sans SC"`，700。
 - UI/正文：`Inter`, `"Noto Sans SC"`, system-ui，500/600。
 - 距离数字 34–42 px、标签 11–12 px 全大写/中文短标签；正文 16 px；结算标题 36–56 px。
 - 数字与英文标签使用 0.08em 字距；中文不强制大写；不使用文字描边。
