@@ -984,25 +984,110 @@ body:has(#alteru-guest-banner) .vr-cast-dock {
 }
 
 .vr-shop__mode {
+  display: grid;
+  grid-template-columns: 66px minmax(0, 1fr) 24px;
   min-height: 44px;
   margin: 8px 10px 0;
-  padding: 8px 42px 8px 14px;
+  align-items: center;
+  padding: 7px 10px 7px 8px;
+  gap: 9px;
   border: 1px solid rgb(91 51 42 / 34%);
   border-radius: 3px;
-  background:
-    linear-gradient(135deg, transparent calc(100% - 31px), rgb(122 191 142 / 22%) calc(100% - 31px)),
-    #e4ede8;
+  background: #e4ede8;
+  box-shadow: 2px 2px 0 rgb(52 42 39 / 9%);
   color: var(--vr-ink);
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: .04em;
   cursor: pointer;
+  text-align: left;
   touch-action: manipulation;
   transition: box-shadow 140ms ease, transform 140ms ease;
 }
 
 .vr-shop__mode:active {
+  box-shadow: 0 0 0 rgb(52 42 39 / 0%);
   transform: translateY(2px);
+}
+
+.vr-shop__mode-route {
+  width: 66px;
+  height: 34px;
+  overflow: visible;
+  fill: none;
+  stroke: var(--vr-ink);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+  pointer-events: none;
+}
+
+.vr-shop__mode-route-main {
+  stroke-width: 2.1;
+}
+
+.vr-shop__mode-route-pencil {
+  opacity: .58;
+  stroke: var(--vr-rust);
+  stroke-width: .9;
+}
+
+.vr-shop__mode-route circle {
+  fill: #f4f0e7;
+  stroke-width: 1.6;
+}
+
+.vr-shop__mode-route .vr-shop__mode-route-dot {
+  fill: var(--vr-rust);
+  stroke: none;
+}
+
+.vr-shop__mode-route-crown {
+  stroke: var(--vr-rust);
+  stroke-width: 1.5;
+}
+
+.vr-shop__mode-copy {
+  display: grid;
+  min-width: 0;
+  gap: 1px;
+}
+
+.vr-shop__mode-copy small,
+.vr-shop__mode-copy strong,
+.vr-shop__mode-copy em {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vr-shop__mode-copy small {
+  color: #96685b;
+  font-size: 8px;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.vr-shop__mode-copy strong {
+  font-size: 13px;
+  font-weight: 850;
+  letter-spacing: .025em;
+}
+
+.vr-shop__mode-copy em {
+  color: var(--vr-muted);
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.vr-shop__mode-arrow {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: var(--vr-rust);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
 }
 
 .vr-shop__grid {

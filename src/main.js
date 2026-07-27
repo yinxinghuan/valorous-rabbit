@@ -66,6 +66,9 @@ const copy = {
     allClear: '主线完成',
     endless: '无尽追逐',
     campaign: '返回主线',
+    modeSwitch: '模式切换',
+    endlessHint: '进入距离排行榜',
+    campaignHint: '继续逐关解锁角色',
     soundOn: '关闭声音',
     soundOff: '打开声音',
     unsupported: '这片原野需要 WebGL',
@@ -117,6 +120,9 @@ const copy = {
     allClear: 'Campaign clear',
     endless: 'Endless run',
     campaign: 'Return to campaign',
+    modeSwitch: 'Switch mode',
+    endlessHint: 'Enter the distance leaderboard',
+    campaignHint: 'Keep unlocking the cast',
     soundOn: 'Mute sound',
     soundOff: 'Turn sound on',
     unsupported: 'This meadow needs WebGL',
@@ -287,7 +293,22 @@ app.innerHTML = `
         </header>
         <p class="vr-shop__notice" id="shop-notice" aria-live="polite"></p>
         <button class="vr-shop__mode" id="mode-toggle" type="button"${progress.stage < 3 ? ' hidden' : ''}>
-          ${gameMode === 'endless' ? t('campaign') : t('endless')}
+          <svg class="vr-shop__mode-route" viewBox="0 0 64 32" aria-hidden="true">
+            <path class="vr-shop__mode-route-main" d="M7 24.5c6-1 5.3-8.2 11.5-8.5 6.4-.3 6 7.6 12.4 7.1 6.8-.5 6.2-11 13.4-12.1 4.2-.6 7.5 1.6 11.7 0"/>
+            <path class="vr-shop__mode-route-pencil" d="M7.5 26.2c6.2-1.4 6.1-7.6 11.1-8.2 6-.7 6.5 7.2 12.2 6.7 7.6-.7 6.6-11.2 13.7-12.3"/>
+            <circle cx="7" cy="24.5" r="3.2"/>
+            <circle class="vr-shop__mode-route-dot" cx="7" cy="24.5" r=".9"/>
+            <path d="M44.5 11.7V4.5m.2.5c4.3-1.8 6.1 2.2 10.6.2l-1.1 5.2c-3.7 1.5-5.5-2-9.6-.4"/>
+            <path class="vr-shop__mode-route-crown" d="M46.5 27h14M48 24.5l-1-8 4 3.5 3-6 3 6 4-3.5-1 8H48Z"/>
+          </svg>
+          <span class="vr-shop__mode-copy">
+            <small>${t('modeSwitch')}</small>
+            <strong id="mode-title">${gameMode === 'endless' ? t('campaign') : t('endless')}</strong>
+            <em id="mode-hint">${gameMode === 'endless' ? t('campaignHint') : t('endlessHint')}</em>
+          </span>
+          <svg class="vr-shop__mode-arrow" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m9 5 7 7-7 7"/>
+          </svg>
         </button>
         <div class="vr-shop__grid" id="shop-grid"></div>
       </section>
@@ -332,6 +353,8 @@ const elements = {
   shopNotice: document.querySelector('#shop-notice'),
   shopClose: document.querySelector('#shop-close'),
   modeToggle: document.querySelector('#mode-toggle'),
+  modeTitle: document.querySelector('#mode-title'),
+  modeHint: document.querySelector('#mode-hint'),
   error: document.querySelector('#error'),
   retry: document.querySelector('#retry'),
 };
@@ -605,7 +628,12 @@ function renderShop() {
   updateWallet();
   updateCastPortrait();
   elements.modeToggle.hidden = progress.stage < 3;
-  elements.modeToggle.textContent = gameMode === 'endless' ? t('campaign') : t('endless');
+  elements.modeTitle.textContent = gameMode === 'endless' ? t('campaign') : t('endless');
+  elements.modeHint.textContent = gameMode === 'endless' ? t('campaignHint') : t('endlessHint');
+  elements.modeToggle.setAttribute(
+    'aria-label',
+    `${elements.modeTitle.textContent} · ${elements.modeHint.textContent}`,
+  );
   CHARACTER_ROSTER.forEach((character) => {
     const owned = progress.unlocked.includes(character.key);
     const equipped = gameMode === 'endless' && progress.selected === character.key;
