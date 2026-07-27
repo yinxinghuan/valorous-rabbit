@@ -6,7 +6,7 @@
 - Three.js 0.80.1 WebGL 渲染，保留上游 Geometry API、FlatShading、球面跑道、程序化兔子和狼；共享角色以静态 GLB 2.0 载入同一个旧版 Three runtime。
 - GSAP 3.15，通过本地 `TweenMax` 兼容薄层复用原作的时序与 easing 调用。
 - CSS 响应式 UI、本地 Creepster v13 WOFF2 距离字形、Pointer Events、Web Audio API 合成反馈、IntersectionObserver/Visibility API 生命周期管理。
-- Aigram canonical bridge：`src/shared/runtime/bridge.ts`；当前用户资料通过 `/note/telegram/user/get/info/by/telegram_id` 获取，角色进度使用 game save/list 接口，排行榜仅在无尽模式使用游戏 UUID 对应的 rank save/list 接口。
+- Aigram canonical bridge：`src/shared/runtime/bridge.ts`；当前用户资料通过 `/note/telegram/user/get/info/by/telegram_id` 获取，角色进度使用 game save/list 接口。排行榜读取在 AlterU 内所有模式可用，rank save 仍只接受无尽模式距离。
 - 永久游戏 UUID：`c4489aba-61f1-45f4-aea6-c217e798462a`，由 `index.html` 的 `game-uuid` meta 注入。
 
 ### 上游接收与许可
@@ -87,7 +87,7 @@ Three.js renderer 跟随 `.vr-world` 的 ResizeObserver。产品竖屏相机 z=2
 
 ### 排行榜与跨用户交互
 
-排行榜只在无尽模式启用。AlterU 内使用永久游戏 UUID 调用 `/note/aigram/ai/game/rank/score/save` 提交整数距离，并通过 `/note/aigram/ai/game/rank/score/list/by/session_id` 读取榜单；主线关卡不会污染全局距离排名。结算保持透明开放式排版，只增加一条紧凑冠军入口；完整榜单由用户主动打开，显示名次、头像、截断后的用户名和距离。自己的行不显示头像，只显示强调色“你 / YOU”；其他玩家行使用 `click` 触发 `openAigramProfile(user_id)`，榜单滚动容器使用 `touch-action: pan-y`。
+排行榜拆分为两个独立能力：`canViewLeaderboard` 只要求 AlterU 身份、Telegram ID、游戏 UUID 且非 baseline，因此主线第 1 关也可通过右上皇冠读取 `/note/aigram/ai/game/rank/score/list/by/session_id`；`canRank` 额外要求当前为无尽模式，只有它能调用 `/note/aigram/ai/game/rank/score/save` 提交整数距离，主线关卡不会污染全局距离排名。打开完整榜单时设置 `leaderboardOpen` 并接入统一暂停合同，关闭后恢复追逐。无尽结算继续保留紧凑冠军入口；完整榜单显示名次、头像、截断后的用户名和距离。自己的行不显示头像，只显示强调色“你 / YOU”；其他玩家行使用 `click` 触发 `openAigramProfile(user_id)`，榜单滚动容器使用 `touch-action: pan-y`。`?leaderboard=1` 可用于直接打开榜单的调试与验收。
 
 每轮首次操作或重试前，从已成功加载的榜单快照当前玩家旧最佳成绩。提交刷新后，仅当新距离高于旧最佳时，从 `(旧最佳, 新距离)` 区间里选分数最高且非自己的一个玩家，通过 `/note/aigram/ai/game/record/play` 发送一次 `score_beat` 通知。榜单尚未成功加载时跳过该轮通知，避免把未知旧最佳误判为 0。平台外不请求榜单，主动打开入口时显示 AlterU 下载提示。
 

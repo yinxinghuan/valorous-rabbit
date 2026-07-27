@@ -10,30 +10,48 @@
     </style>
   </head>
   <body>
-    <iframe
-      id="game"
-      title="Platform simulation"
-      src="../?api_origin=http%3A%2F%2F127.0.0.1%3A5174&telegram_id=24680"
-    ></iframe>
+    <iframe id="game" title="Platform simulation"></iframe>
     <script>
       const frame = document.querySelector('#game');
+      const gameUrl = new URL('../', location.href);
+      gameUrl.searchParams.set('api_origin', location.origin);
+      gameUrl.searchParams.set('telegram_id', '24680');
+      frame.src = gameUrl.href;
       window.addEventListener('message', (event) => {
         if (typeof event.data !== 'string' || !event.data.startsWith('callAPI-')) return;
         const request = JSON.parse(decodeURIComponent(escape(atob(event.data.slice(8)))));
-        const response = {
-          request_id: request.request_id,
-          success: true,
-          data: {
+        let data = null;
+        if (request.url.includes('/user/get/info/')) {
+          data = {
             retcode: 0,
             msg: 'ok',
             data: {
               name: 'Player From Bridge With A Long Name',
               head_url: 'https://example.com/no-cors-avatar.png'
             }
-          }
+          };
+        } else if (request.url.includes('/rank/score/list/')) {
+          data = {
+            retcode: 0,
+            msg: 'ok',
+            data: [
+              { user_id: '101', user_name: 'Meadow Queen', head_url: '', score: '932', rank: 1 },
+              { user_id: '24680', user_name: 'Player From Bridge With A Long Name', head_url: '', score: '714', rank: 2 },
+              { user_id: '303', user_name: 'Wolf Whisperer With An Extra Long Name', head_url: '', score: '608', rank: 3 }
+            ]
+          };
+        } else if (request.url.includes('/game/get/data/list')) {
+          data = { retcode: 0, msg: 'ok', data: [] };
+        } else {
+          data = { retcode: 0, msg: 'ok', data: null };
+        }
+        const response = {
+          request_id: request.request_id,
+          success: true,
+          data
         };
         const payload = btoa(unescape(encodeURIComponent(JSON.stringify(response))));
-        frame.contentWindow.postMessage(`callAPIResult-${payload}`, 'http://127.0.0.1:5174');
+        frame.contentWindow.postMessage(`callAPIResult-${payload}`, location.origin);
       });
     </script>
   </body>

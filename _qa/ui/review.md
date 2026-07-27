@@ -16,6 +16,7 @@
 | 结算复验 | — | `recheck-result-320x568.png` |
 | 排行榜版透明结算 | `leaderboard-result-390x844.png` | `leaderboard-result-320x568.png` |
 | 完整排行榜（长用户名/本人/他人） | `leaderboard-overlay-390x844.png` | — |
+| 主线常驻排行榜入口 | `leaderboard-shortcut-390x844.png` | `leaderboard-shortcut-320x568.png` |
 | 角色商店购买后 | `cast-shop-purchased-390x844.png` | `cast-shop-purchased-320x568.png` |
 | 七类角色运行 | `cast-people__kid-390x844.png`、`cast-monsters__zombie-390x844.png`、`cast-monsters__werewolf-390x844.png`、`cast-monsters__ghost-390x844.png`、`cast-mechs__combatMech-390x844.png`、`cast-animals__frog-recheck-390x844.png`、`cast-animals__duck-390x844.png` | — |
 | 七类动作四帧矩阵 | `cast-motion-sheet-390x844.png` | — |
@@ -53,6 +54,7 @@
 3. **P2 / 榜单 / 本人仍显示头像**：本人行移除头像，只保留强调色“你 / YOU”；其他玩家继续显示真实头像或首字母回退。
 4. **P2 / 长用户名与资料点击**：冠军条和完整榜单都使用 `min-width:0` + ellipsis；模拟三名平台数据验证榜单行等宽，点击第三名只发出一次 `AW.PROFILE.OPEN`。
 5. **状态覆盖**：平台内加载、成功、空榜、失败文案均不阻塞重试；平台外入口不请求 rank API，显示 AlterU CTA。
+6. **P0 / 平台内发现性 / 主线看不到排行榜**：原实现把读取榜单的权限和无尽成绩提交共用一个 `canRank`，导致主线状态没有常驻入口且读取逻辑被错误判为不可用。拆分 `canViewLeaderboard` 与 `canRank`，右上新增 48×48 px 皇冠入口；模拟 AlterU 登录环境在第 1 关主线直接读取 3 行榜单，390×844 与 320×568 均得到 `rows=3 / selfRows=1 / overflow=0`。打开榜单暂停追逐，只有无尽模式继续提交成绩。
 
 ## 角色主线与商店垂直切片复验
 

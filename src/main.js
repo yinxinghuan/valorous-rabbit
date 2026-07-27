@@ -44,6 +44,7 @@ const copy = {
     leaderboardUnavailable: '排行榜暂时没有回应，请稍后再试。',
     openInAlterU: '在 AlterU 中打开，即可查看全球排行榜与其他跑者。',
     getAlterU: '下载 AlterU',
+    openProfile: '打开 {name} 的资料',
     you: '你',
     meters: '米',
     seconds: '秒',
@@ -98,6 +99,7 @@ const copy = {
     leaderboardUnavailable: 'The leaderboard is resting. Try again soon.',
     openInAlterU: 'Open in AlterU to see the global leaderboard and other runners.',
     getAlterU: 'Get AlterU',
+    openProfile: 'Open {name}’s profile',
     you: 'YOU',
     meters: 'm',
     seconds: 's',
@@ -223,6 +225,11 @@ app.innerHTML = `
         <path class="vr-sound-slash" d="M5 5l14 14"/>
       </svg>
     </button>
+    <button class="vr-icon-button vr-icon-button--leaders" id="leaders-shortcut" type="button" aria-label="${t('leaders')}">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M3 18 2 7l6 5 4-8 4 8 6-5-1 11H3Zm1 3h16"/>
+      </svg>
+    </button>
     <div class="vr-gesture" id="gesture" aria-hidden="true">
       <span class="vr-gesture__ring"></span>
       <svg viewBox="0 0 24 24"><path d="${materialTouchPath}"/></svg>
@@ -340,6 +347,7 @@ const elements = {
   resultRank: document.querySelector('#result-rank'),
   replay: document.querySelector('#replay'),
   leaders: document.querySelector('#leaders'),
+  leadersShortcut: document.querySelector('#leaders-shortcut'),
   championAvatar: document.querySelector('#champion-avatar'),
   championLabel: document.querySelector('#champion-label'),
   championName: document.querySelector('#champion-name'),
@@ -368,7 +376,9 @@ let ready = false;
 let gameEnded = false;
 let awaitingFirstJump = !baseline;
 let offscreen = false;
-const canRank = Boolean(isInAigram && telegramId && gameUuid && !baseline && gameMode === 'endless');
+let leaderboardOpen = false;
+const canViewLeaderboard = Boolean(isInAigram && telegramId && gameUuid && !baseline);
+const canRank = Boolean(canViewLeaderboard && gameMode === 'endless');
 const leaderboardState = {
   rows: [],
   loaded: false,
@@ -468,7 +478,7 @@ function renderLeaderboardMessage(kind) {
 }
 
 function renderLeaderboardRows() {
-  if (!canRank) {
+  if (!canViewLeaderboard) {
     renderLeaderboardMessage('external');
     return;
   }
@@ -493,6 +503,7 @@ function renderLeaderboardRows() {
     item.className = `vr-leaderboard__row${self ? ' is-self' : ''}`;
     if (!self) {
       item.type = 'button';
+      item.setAttribute('aria-label', t('openProfile', { name: row.userName }));
       item.addEventListener('click', () => {
         if (isInAigram && row.userId) openAigramProfile(row.userId);
       });
@@ -523,7 +534,7 @@ async function fetchLeaderboard() {
 }
 
 async function refreshLeaderboard() {
-  if (!canRank || leaderboardState.loading) return leaderboardState.rows;
+  if (!canViewLeaderboard || leaderboardState.loading) return leaderboardState.rows;
   leaderboardState.loading = true;
   leaderboardState.error = false;
   if (!leaderboardState.loaded && !elements.leaderboard.hidden) renderLeaderboardRows();
@@ -839,7 +850,7 @@ function playUnlock() {
 }
 
 function updatePauseState() {
-  world?.setPaused(awaitingFirstJump || document.hidden || offscreen || shopOpen);
+  world?.setPaused(awaitingFirstJump || document.hidden || offscreen || shopOpen || leaderboardOpen);
 }
 
 document.addEventListener('visibilitychange', updatePauseState);
@@ -1023,17 +1034,27 @@ elements.modeToggle.addEventListener('click', () => {
   else url.searchParams.set('mode', 'endless');
   location.href = url.href;
 });
-elements.leaders.addEventListener('click', () => {
+function openLeaderboard() {
+  leaderboardOpen = true;
   elements.leaderboard.hidden = false;
   renderLeaderboardRows();
   requestAnimationFrame(() => elements.leaderboard.classList.add('is-visible'));
-  if (canRank) void refreshLeaderboard();
+  if (canViewLeaderboard) void refreshLeaderboard();
+  updatePauseState();
+}
+
+elements.leaders.addEventListener('click', openLeaderboard);
+elements.leadersShortcut.addEventListener('click', (event) => {
+  event.stopPropagation();
+  openLeaderboard();
 });
 function closeLeaderboard() {
+  leaderboardOpen = false;
   elements.leaderboard.classList.remove('is-visible');
   window.setTimeout(() => {
     elements.leaderboard.hidden = true;
   }, 220);
+  updatePauseState();
 }
 elements.leaderboardClose.addEventListener('click', closeLeaderboard);
 document.querySelector('[data-close-leaderboard]').addEventListener('click', closeLeaderboard);
@@ -1077,3 +1098,4 @@ window.addEventListener('keydown', (event) => {
 renderShop();
 void refreshLeaderboard();
 void initWorld();
+if (query.get('leaderboard') === '1') openLeaderboard();

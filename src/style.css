@@ -143,6 +143,15 @@ a:focus-visible {
   transition: transform 160ms ease, box-shadow 160ms ease;
 }
 
+.vr-icon-button--leaders {
+  top: max(136px, calc(env(safe-area-inset-top) + 66px));
+  background: rgb(244 240 231 / 92%);
+}
+
+.vr-icon-button--leaders path {
+  stroke: var(--vr-rust);
+}
+
 .vr-cast-dock {
   position: absolute;
   z-index: 7;
@@ -286,6 +295,10 @@ body:has(#alteru-guest-banner) .vr-hud {
 
 body:has(#alteru-guest-banner) .vr-icon-button {
   top: max(152px, calc(env(safe-area-inset-top) + 82px));
+}
+
+body:has(#alteru-guest-banner) .vr-icon-button--leaders {
+  top: max(208px, calc(env(safe-area-inset-top) + 138px));
 }
 
 body:has(#alteru-guest-banner) .vr-cast-dock {
