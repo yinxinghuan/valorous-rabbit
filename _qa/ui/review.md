@@ -22,6 +22,10 @@
 | 关卡完成 | `cast-stage-complete-390x844.png` | `cast-stage-complete-final-320x568.png` |
 | 下一角色入场 | `cast-next-granny-390x844.png` | — |
 | 狼咬角色定格 | `cast-caught-people__kid-recheck-390x844.png`、`cast-caught-animals__frog-final-390x844.png` | — |
+| 全量 52 角色运行轮播 | `full-roster-contact-390x844.png`、`full-roster/*.png` | — |
+| 极端比例与材质 | — | `full-mobile-archetypes__punk-320x568.png`、`full-mobile-mechs__combatMech-320x568.png`、`full-mobile-mythic__minotaur-320x568.png`、`full-mobile-animals__fox-320x568.png`、`full-mobile-animals__frog-320x568.png`、`full-mobile-monsters__ghost-320x568.png` |
+| 完整 53 卡商店底部 | `full-shop-bottom-390x844.png` | `full-shop-top-320x568.png`、`full-shop-bottom-320x568.png` |
+| 第 53 关主线完成 | `final-campaign-clear-390x844.png` | — |
 | 本地基线 | `../reference/local-baseline-1200x800.png` | — |
 
 ## 首轮发现与修复
@@ -59,6 +63,17 @@
 7. **剩余角色运行审计**：老奶奶、牛头人、鸡和消防员分别加载、启动并运行 900 ms；四项均有 390×844 canvas、无错误态、无 console/page error、body 宽度等于 viewport。
 8. **无尽入口审计**：模拟第 3 关进度后，商店显示“无尽追逐”；切换后 URL 为 `mode=endless`、HUD 为距离、任务行为空，且 390 px 无横向溢出。
 
+## 全量角色扩展复验
+
+1. **P1 / 青蛙朝向 / 背面朝向观众**：导入模型的前向轴与原作人形轴不同，初版青蛙只显示背部。角色合同增加显式 `facingYaw`，全部 11 个动物统一校正 `π`；复验中青蛙双眼、猪鼻、鸡喙、鸭喙与其他物种识别特征均朝向观众。
+2. **P1 / 全量完整性 / 仅接入垂直切片**：同步工具从实时 inventory 动态筛选所有角色；consumer absence audit 报告 `expectedCharacters 52 / presentCharacters 52 / missing 0 / extra 0 / problems 0`。
+3. **P1 / 动作配置缺口 / 新角色回退通用步态**：52 个共享 `category/id` 全部进入穷举动作映射，构建同时检查 missing 与 extra。人物、老人、重装、职业角色、六种怪物、机甲、神话角色与动物分别进入 30 种动作语义；漏配会直接阻断构建。
+4. **P1 / 全量运行 / 只验证静态 sprite**：逐个启动 52 个真实 WebGL 场景并各运行 1.05 秒；得到 52 个唯一身份、52 张运行截图、0 console/page error、0 canvas 失败、0 横向溢出。
+5. **P1 / 极端体型与材质 / 窄屏裁切风险**：在 320×568 复验最高 punk、宽体机甲、深体牛头人、最长狐狸、最矮青蛙与透明幽灵；六项 canvas 正常、错误态隐藏、`body.scrollWidth === 320`。
+6. **P2 / 长商店 / 底部购买后跳回顶部**：53 张卡把 320×568 的网格拉到 `scrollHeight 3568`。重绘前后保存 `scrollTop`；在底部购买鸭子后余额 `999 → 879`、状态变为 Owned，并保持 `scrollTop 3226`。
+7. **P2 / 长商店 / 完整性与响应式**：320×568 显示 53 张唯一角色卡、52 张正式 sprite 加 1 个程序化勇兔标记；网格宽 `298/298`、body 宽 `320/320`。390×844 底部可达且 body 宽 `390/390`。
+8. **关卡边界**：第 12 关完成后保存 stage 13 并切换 HUD；第 53 关显示 Campaign clear、解锁 Bear，重跑保持第 53 关。两条路径均无应用错误。
+
 ## 最终评分
 
 | 类别 | 分数 | 结论 |
@@ -66,9 +81,9 @@
 | Hierarchy | 5 | 当前角色与即将到达的道具为第一焦点，UI 明显退后。 |
 | Coherence | 5 | 原作兔子与共享角色处在同一薄荷低多边形世界，商店和结算沿用同一砖红系统。 |
 | Readability | 4 | 长用户名、双语、Guest Shell 与窄屏均可读。 |
-| Game feel | 4 | 首次输入同帧恢复世界并跳跃；11 个共享角色有显式跑、跳、落地、受击和被捕动作。 |
-| Asset quality | 4 | 11 个正式 GLB 保留材质、比例和 rig；角色剪影清楚，但程序化兔子仍是细节质量上限。 |
+| Game feel | 4 | 首次输入同帧恢复世界并跳跃；52 个共享角色有穷举动作语义与跑、跳、落地、受击和被捕状态。 |
+| Asset quality | 4 | 52 个正式 GLB 保留材质、比例、朝向和 rig；角色剪影清楚，但程序化兔子仍是细节质量上限。 |
 | Responsive UX | 4 | 390×844、320×568 无横向溢出或不可达控件。 |
 | Polish | 4 | 首帧握手、错误态、重试、减少动态和暂停合同完整。 |
 
-平均分 4.29；12 角色首发切片无 P0/P1 遗留项。共享库其余 41 名角色尚未进入产品 roster，必须逐个补齐动作 profile 后再扩展。
+平均分 4.29；原作勇兔与共享库全部 52 名角色均进入产品 roster，无 P0/P1 遗留项。

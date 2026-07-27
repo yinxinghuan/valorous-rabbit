@@ -579,6 +579,7 @@ function characterMedia(character) {
     const image = document.createElement('img');
     image.src = character.spriteUrl;
     image.alt = '';
+    image.loading = 'lazy';
     image.draggable = false;
     return image;
   }
@@ -593,6 +594,7 @@ function characterMedia(character) {
 }
 
 function renderShop() {
+  const previousScroll = elements.shopGrid.scrollTop;
   elements.shopGrid.replaceChildren();
   updateWallet();
   elements.modeToggle.hidden = progress.stage < 3;
@@ -603,6 +605,7 @@ function renderShop() {
     const trial = gameMode === 'campaign' && activeStage.characterKey === character.key && !owned;
     const card = document.createElement('button');
     card.type = 'button';
+    card.dataset.characterKey = character.key;
     card.className = `vr-shop__item${equipped ? ' is-equipped' : ''}${trial ? ' is-trial' : ''}`;
     card.appendChild(characterMedia(character));
     const copyBox = document.createElement('span');
@@ -653,6 +656,9 @@ function renderShop() {
       }
     });
     elements.shopGrid.appendChild(card);
+  });
+  requestAnimationFrame(() => {
+    elements.shopGrid.scrollTop = previousScroll;
   });
 }
 

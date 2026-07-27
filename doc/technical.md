@@ -27,9 +27,11 @@
 index.html                         # 移动 viewport、UUID、首屏关键底色、Guest Shell
 src/main.js                        # i18n、状态/UI、触控、身份、排行榜、通知、音频与首帧握手
 src/rabbit-world.js                # 上游 Three.js 场景、角色、碰撞、追逐与渲染循环
-src/character-roster.js            # 12 角色、12 关目标、价格与穷举动作 profile
+src/character-roster.js            # 53 角色、53 关目标、价格、朝向与穷举动作映射
 src/portable-glb-loader.js         # 旧 Three.js 共运行时的静态 GLB 2.0 适配器
-src/assets/characters/             # 11 个正式共享 GLB 与商店透明 sprite
+src/assets/character-inventory.json # 从实时 ASSETS.json 生成的 52 角色清单快照
+src/assets/characters/             # 52 个正式共享 GLB 与 52 张商店透明 sprite
+scripts/sync-character-library.mjs # 动态筛选、复制并清理共享角色资产
 src/style.css                      # 视觉系统、Guest Shell 安全区与双尺寸响应式
 src/fonts/creepster-latin-v13.woff2 # Get Off My Grave 同款距离展示字体
 src/shared/runtime/                # Aigram canonical bridge 与 UUID resolution
@@ -48,15 +50,15 @@ _qa/platform-harness.html          # Aigram iframe bridge + 无 CORS 头像模�
 
 ### 状态、主循环与渲染
 
-`main.js` 维护 `loading → guided idle → running → result/error` 主状态，以及独立的 `shop open/closed`、`campaign/endless` 与 `stage 1…12` 子状态；`rabbit-world.js` 维护 `play → gameOver/levelComplete → readyToReplay` 场景状态。页面打开后立即通过动态 `import()` 下载场景模块并调用异步 `createRabbitWorld()`；当前 GLB、球面、灯光与障碍创建完成且 renderer 实际完成一帧后，`onReady` 显示场景并暂停玩法，等待第一次真实操作。
+`main.js` 维护 `loading → guided idle → running → result/error` 主状态，以及独立的 `shop open/closed`、`campaign/endless` 与 `stage 1…53` 子状态；`rabbit-world.js` 维护 `play → gameOver/levelComplete → readyToReplay` 场景状态。页面打开后立即通过动态 `import()` 下载场景模块并调用异步 `createRabbitWorld()`；当前 GLB、球面、灯光与障碍创建完成且 renderer 实际完成一帧后，`onReady` 显示场景并暂停玩法，等待第一次真实操作。
 
 渲染循环沿用原作公式：球面每帧旋转 `delta × 0.03 × speed`，距离累加 `delta × speed`。主线狼以 `monsterAcceleration=0.0011` 追随目标位置，无尽模式为 `0.004`；速度每 3 秒增加 2、上限 48。主线每帧同时检查目标时长与任务胡萝卜，二者都完成后触发 `levelComplete`。页面隐藏、可见比例低于 25% 或角色商店打开时，同时暂停逻辑更新和 GSAP global timeline；恢复时丢弃暂停期间的 delta。
 
 ### 角色资产与动作
 
-`character-roster.js` 显式列出首发 12 名角色；`import.meta.glob` 只负责把清单中的相对文件转为构建 URL，不承担库存发现。原作兔子继续使用程序化 `Hero`，其余 11 名角色来自 `_lowpoly_lab/assets/ASSETS.json` 的正式 GLB。`portable-glb-loader.js` 解析 GLB 2.0 JSON/BIN、节点层级、TRS、材质、交错 accessor 与索引，构建旧版 Three `BufferGeometry`，避免为了 GLTFLoader 引入第二套 Three runtime。
+`npm run sync:characters` 读取 `_lowpoly_lab/assets/ASSETS.json`，动态筛选 `categories[*].kind === "character"`，复制正式 GLB/sprite，并生成带真实名称、footprint、rig 节点和 `category/id` 的 inventory 快照。`character-roster.js` 以该快照为需求真源，产品排序只把已批准的 11 个垂直切片角色放在前部；`import.meta.glob` 只负责把清单文件转为构建 URL，不承担库存发现。原作兔子继续使用程序化 `Hero`，其余 52 名角色使用正式 GLB。`portable-glb-loader.js` 解析 GLB 2.0 JSON/BIN、节点层级、TRS、材质、交错 accessor 与索引，构建旧版 Three `BufferGeometry`，避免为了 GLTFLoader 引入第二套 Three runtime。
 
-`ImportedHero` 加载后用 `Box3` 同时限制高度 27、宽度 22、深度 22 个世界单位，按模型底面落地并保留命名 rig。`rig_legL / rig_legR / rig_armL / rig_armR` 的初始 position/rotation/scale 分别缓存为 rest pose；每帧动作只叠加在各自 rest pose 上。11 名角色穷举为 quickstep、shuffle、lurch、prowl、float、piston、charge、spring、waddle、scuttle、heroic，不存在通用 fallback。每名角色覆盖 run、jump anticipation、land recovery、hit recoil 与 caught pose；无四肢 rig 的幽灵和动物使用显式 root motion。
+`ImportedHero` 加载后用 `Box3` 同时限制高度 27、宽度 22、深度 22 个世界单位，按模型底面落地并保留命名 rig。`rig_legL / rig_legR / rig_armL / rig_armR` 的初始 position/rotation/scale 分别缓存为 rest pose；每帧动作只叠加在各自 rest pose 上。`MOTION_BY_CHARACTER` 穷举 52 个共享身份并映射到 30 种动作语义，构建时同时检查 missing 与 extra，不存在通用 fallback。每名角色覆盖 run、jump anticipation、land recovery、hit recoil 与 caught pose；无四肢 rig 的幽灵和动物使用显式 root motion。动物类统一应用 `facingYaw = π` 校正库模型前向轴，保证青蛙等角色的脸而非背面朝向观众。
 
 ### 屏幕适配与输入
 
@@ -78,7 +80,7 @@ Three.js renderer 跟随 `.vr-world` 的 ResizeObserver。产品竖屏相机 z=2
 
 本地镜像 `valorous_rabbit_cast_v1` 是运行期唯一可变真源，字段为 `stage / wallet / unlocked / selected / _lastActive`。拾取、购买、装备和过关先同步写入 localStorage；AlterU 内再以 1 秒 debounce 调用 `/note/aigram/ai/game/save/data`。首次加载通过 `/note/aigram/ai/game/get/data/list` 读取自己的记录，只在云端 `_lastActive` 更新时替换本地镜像，避免连续操作用一次性旧快照覆盖刚写入的角色。
 
-商店使用 2 列可滚动 DOM 网格，角色卡采用 `click`，不在触摸滚动起点触发购买。当前关角色显示“本关试用”，通关直接解锁；也可提前按 60/120/220/360/560 五档价格购买。第 3 关开放无尽模式入口；无尽使用 `selected` 角色，主线继续固定使用当关试用角色。
+商店使用 2 列可滚动 DOM 网格显示 53 张角色卡，卡片采用 `click`，不在触摸滚动起点触发购买；sprite 使用 lazy loading。重绘卡片前后保存并恢复 `scrollTop`，所以在长列表底部购买不会跳回顶部。当前关角色显示“本关试用”，通关直接解锁；也可提前按 60/120/220/360/560 五档价格购买。第 3 关开放无尽模式入口；无尽使用 `selected` 角色，主线继续固定使用当关试用角色。
 
 ### 排行榜与跨用户交互
 
@@ -88,7 +90,8 @@ Three.js renderer 跟随 `.vr-world` 的 ResizeObserver。产品竖屏相机 z=2
 
 ## 4. 扩展点
 
-- 调整关卡时长、任务数量、首发角色、价格或动作 profile：修改 `src/character-roster.js`；添加角色时必须同步正式 GLB/sprite 并通过 consumer validator。
+- 同步共享角色库：运行 `npm run sync:characters`，再补齐 `src/character-roster.js` 的显式动作映射与朝向规则；必须通过 `validate-consumer.mjs --all-characters`。
+- 调整关卡时长、任务数量、产品排序、价格或动作 profile：修改 `src/character-roster.js`。
 - 调整追逐速度、球面半径、碰撞距离、角色尺寸带和狼位置：修改 `src/rabbit-world.js`。
 - 更换触控闭环、角色商店、解锁规则、结算内容、身份文案和音频：修改 `src/main.js`。
 - 调整颜色、相机安全区、窄屏布局和动效：修改 `src/style.css` 与 `doc/visual.md`。

@@ -1,0 +1,1417 @@
+{
+  "source": "_lowpoly_lab/assets/ASSETS.json",
+  "inventoryCount": 86,
+  "characterCount": 52,
+  "characters": [
+    {
+      "key": "people/shopkeeper",
+      "id": "shopkeeper",
+      "category": "people",
+      "name": {
+        "zh": "店主",
+        "en": "Shopkeeper"
+      },
+      "tags": [
+        "shopkeeper",
+        "person",
+        "character",
+        "human",
+        "clerk",
+        "apron",
+        "store"
+      ],
+      "footprint": [
+        1.52,
+        2.79,
+        0.625
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "people__shopkeeper"
+    },
+    {
+      "key": "people/granny",
+      "id": "granny",
+      "category": "people",
+      "name": {
+        "zh": "老奶奶",
+        "en": "Granny"
+      },
+      "tags": [
+        "granny",
+        "grandma",
+        "person",
+        "character",
+        "human",
+        "elderly",
+        "glasses",
+        "bun"
+      ],
+      "footprint": [
+        1.52,
+        2.98,
+        0.575
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "people__granny"
+    },
+    {
+      "key": "people/oldman",
+      "id": "oldman",
+      "category": "people",
+      "name": {
+        "zh": "老爷爷",
+        "en": "Old man"
+      },
+      "tags": [
+        "oldman",
+        "grandpa",
+        "person",
+        "character",
+        "human",
+        "elderly",
+        "glasses",
+        "accordion",
+        "musician"
+      ],
+      "footprint": [
+        1.52,
+        2.79,
+        1
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "people__oldman"
+    },
+    {
+      "key": "people/blonde",
+      "id": "blonde",
+      "category": "people",
+      "name": {
+        "zh": "金发女",
+        "en": "Blonde woman"
+      },
+      "tags": [
+        "blonde",
+        "woman",
+        "person",
+        "character",
+        "human",
+        "dress",
+        "lady"
+      ],
+      "footprint": [
+        1.52,
+        2.83,
+        0.615
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "people__blonde"
+    },
+    {
+      "key": "people/kid",
+      "id": "kid",
+      "category": "people",
+      "name": {
+        "zh": "小孩",
+        "en": "Kid"
+      },
+      "tags": [
+        "kid",
+        "child",
+        "boy",
+        "person",
+        "character",
+        "human",
+        "backpack",
+        "school"
+      ],
+      "footprint": [
+        1.3,
+        2.17,
+        0.8
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "people__kid"
+    },
+    {
+      "key": "people/businessman",
+      "id": "businessman",
+      "category": "people",
+      "name": {
+        "zh": "商务男",
+        "en": "Businessman"
+      },
+      "tags": [
+        "businessman",
+        "man",
+        "person",
+        "character",
+        "human",
+        "suit",
+        "tie",
+        "office",
+        "dark-skin"
+      ],
+      "footprint": [
+        1.6,
+        2.79,
+        0.62
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "people__businessman"
+    },
+    {
+      "key": "people/officeWoman",
+      "id": "officeWoman",
+      "category": "people",
+      "name": {
+        "zh": "职场女",
+        "en": "Office woman"
+      },
+      "tags": [
+        "officeWoman",
+        "woman",
+        "person",
+        "character",
+        "human",
+        "office",
+        "skirt",
+        "professional"
+      ],
+      "footprint": [
+        1.52,
+        2.83,
+        0.615
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "people__officeWoman"
+    },
+    {
+      "key": "people/student",
+      "id": "student",
+      "category": "people",
+      "name": {
+        "zh": "学生",
+        "en": "Student"
+      },
+      "tags": [
+        "student",
+        "person",
+        "character",
+        "human",
+        "backpack",
+        "school",
+        "youth",
+        "tan-skin"
+      ],
+      "footprint": [
+        1.52,
+        2.79,
+        0.8
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "people__student"
+    },
+    {
+      "key": "people/darkWoman",
+      "id": "darkWoman",
+      "category": "people",
+      "name": {
+        "zh": "深肤女",
+        "en": "Dark-skin woman"
+      },
+      "tags": [
+        "darkWoman",
+        "woman",
+        "person",
+        "character",
+        "human",
+        "dress",
+        "dark-skin",
+        "bun",
+        "diverse"
+      ],
+      "footprint": [
+        1.52,
+        2.98,
+        0.575
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "people__darkWoman"
+    },
+    {
+      "key": "people/worker",
+      "id": "worker",
+      "category": "people",
+      "name": {
+        "zh": "工人",
+        "en": "Worker"
+      },
+      "tags": [
+        "worker",
+        "man",
+        "person",
+        "character",
+        "human",
+        "hardhat",
+        "construction",
+        "labor",
+        "dark-skin"
+      ],
+      "footprint": [
+        1.56,
+        2.79,
+        0.75
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "people__worker"
+    },
+    {
+      "key": "people/teen",
+      "id": "teen",
+      "category": "people",
+      "name": {
+        "zh": "少年",
+        "en": "Teen"
+      },
+      "tags": [
+        "teen",
+        "person",
+        "character",
+        "human",
+        "student",
+        "hoodie",
+        "cap",
+        "youth"
+      ],
+      "footprint": [
+        1.44,
+        2.59,
+        0.75
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "people__teen"
+    },
+    {
+      "key": "people/fitWoman",
+      "id": "fitWoman",
+      "category": "people",
+      "name": {
+        "zh": "健身女",
+        "en": "Fit Woman"
+      },
+      "tags": [
+        "fitWoman",
+        "person",
+        "character",
+        "human",
+        "athlete",
+        "tank",
+        "sporty",
+        "woman"
+      ],
+      "footprint": [
+        1.52,
+        2.94,
+        0.57
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "people__fitWoman"
+    },
+    {
+      "key": "people/chef",
+      "id": "chef",
+      "category": "people",
+      "name": {
+        "zh": "厨师",
+        "en": "Chef"
+      },
+      "tags": [
+        "chef",
+        "person",
+        "character",
+        "human",
+        "cook",
+        "uniform",
+        "hat",
+        "kitchen"
+      ],
+      "footprint": [
+        1.52,
+        2.79,
+        0.75
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "people__chef"
+    },
+    {
+      "key": "people/bigGuy",
+      "id": "bigGuy",
+      "category": "people",
+      "name": {
+        "zh": "壮汉",
+        "en": "Big Guy"
+      },
+      "tags": [
+        "bigGuy",
+        "person",
+        "character",
+        "human",
+        "broad",
+        "glasses",
+        "large",
+        "man"
+      ],
+      "footprint": [
+        1.62,
+        2.79,
+        0.62
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "people__bigGuy"
+    },
+    {
+      "key": "people/commuter",
+      "id": "commuter",
+      "category": "people",
+      "name": {
+        "zh": "通勤者",
+        "en": "Commuter"
+      },
+      "tags": [
+        "commuter",
+        "people",
+        "human"
+      ],
+      "footprint": [
+        1.52,
+        2.79,
+        0.838
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "people__commuter"
+    },
+    {
+      "key": "archetypes/cop",
+      "id": "cop",
+      "category": "archetypes",
+      "name": {
+        "zh": "甜甜圈 NYPD",
+        "en": "cop"
+      },
+      "tags": [
+        "archetype",
+        "person",
+        "crossy-road-caricature",
+        "accent-teal",
+        "silhouette-driven"
+      ],
+      "footprint": [
+        1.74,
+        2.75,
+        1.215
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "archetypes__cop"
+    },
+    {
+      "key": "archetypes/nurse",
+      "id": "nurse",
+      "category": "archetypes",
+      "name": {
+        "zh": "WWII pin-up 护士",
+        "en": "nurse"
+      },
+      "tags": [
+        "archetype",
+        "person",
+        "crossy-road-caricature",
+        "accent-teal",
+        "silhouette-driven"
+      ],
+      "footprint": [
+        1.3,
+        2.931,
+        0.575
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "archetypes__nurse"
+    },
+    {
+      "key": "archetypes/firefighter",
+      "id": "firefighter",
+      "category": "archetypes",
+      "name": {
+        "zh": "FDNY 英雄",
+        "en": "firefighter"
+      },
+      "tags": [
+        "archetype",
+        "person",
+        "crossy-road-caricature",
+        "accent-teal",
+        "silhouette-driven"
+      ],
+      "footprint": [
+        1.8,
+        2.93,
+        0.95
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "archetypes__firefighter"
+    },
+    {
+      "key": "archetypes/construction",
+      "id": "construction",
+      "category": "archetypes",
+      "name": {
+        "zh": "Village People macho",
+        "en": "construction"
+      },
+      "tags": [
+        "archetype",
+        "person",
+        "crossy-road-caricature",
+        "accent-teal",
+        "silhouette-driven"
+      ],
+      "footprint": [
+        1.8,
+        2.85,
+        0.77
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "archetypes__construction"
+    },
+    {
+      "key": "archetypes/delivery",
+      "id": "delivery",
+      "category": "archetypes",
+      "name": {
+        "zh": "复古 Newsies 报童",
+        "en": "delivery"
+      },
+      "tags": [
+        "archetype",
+        "person",
+        "crossy-road-caricature",
+        "accent-teal",
+        "silhouette-driven"
+      ],
+      "footprint": [
+        1.41,
+        2.6,
+        0.68
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "archetypes__delivery"
+    },
+    {
+      "key": "archetypes/cowboy",
+      "id": "cowboy",
+      "category": "archetypes",
+      "name": {
+        "zh": "Clint Eastwood 镖客",
+        "en": "cowboy"
+      },
+      "tags": [
+        "archetype",
+        "person",
+        "crossy-road-caricature",
+        "accent-teal",
+        "silhouette-driven"
+      ],
+      "footprint": [
+        1.66,
+        3,
+        1.06
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "archetypes__cowboy"
+    },
+    {
+      "key": "archetypes/punk",
+      "id": "punk",
+      "category": "archetypes",
+      "name": {
+        "zh": "Sid Vicious 1977",
+        "en": "punk"
+      },
+      "tags": [
+        "archetype",
+        "person",
+        "crossy-road-caricature",
+        "accent-teal",
+        "silhouette-driven"
+      ],
+      "footprint": [
+        1.26,
+        3.77,
+        0.52
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "archetypes__punk"
+    },
+    {
+      "key": "archetypes/rapper",
+      "id": "rapper",
+      "category": "archetypes",
+      "name": {
+        "zh": "Notorious B.I.G.",
+        "en": "rapper"
+      },
+      "tags": [
+        "archetype",
+        "person",
+        "crossy-road-caricature",
+        "accent-teal",
+        "silhouette-driven"
+      ],
+      "footprint": [
+        2.01,
+        2.85,
+        0.93
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "archetypes__rapper"
+    },
+    {
+      "key": "archetypes/biker",
+      "id": "biker",
+      "category": "archetypes",
+      "name": {
+        "zh": "Fonzie / Brando Wild One",
+        "en": "biker"
+      },
+      "tags": [
+        "archetype",
+        "person",
+        "crossy-road-caricature",
+        "accent-teal",
+        "silhouette-driven"
+      ],
+      "footprint": [
+        1.68,
+        3.13,
+        0.67
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "archetypes__biker"
+    },
+    {
+      "key": "archetypes/goth",
+      "id": "goth",
+      "category": "archetypes",
+      "name": {
+        "zh": "Morticia Addams",
+        "en": "goth"
+      },
+      "tags": [
+        "archetype",
+        "person",
+        "crossy-road-caricature",
+        "accent-teal",
+        "silhouette-driven"
+      ],
+      "footprint": [
+        1.4,
+        2.85,
+        0.618
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "archetypes__goth"
+    },
+    {
+      "key": "archetypes/paramedic",
+      "id": "paramedic",
+      "category": "archetypes",
+      "name": {
+        "zh": "急救员",
+        "en": "Paramedic"
+      },
+      "tags": [
+        "paramedic",
+        "archetypes",
+        "human"
+      ],
+      "footprint": [
+        1.56,
+        2.81,
+        0.82
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "archetypes__paramedic"
+    },
+    {
+      "key": "monsters/vampire",
+      "id": "vampire",
+      "category": "monsters",
+      "name": {
+        "zh": "吸血鬼",
+        "en": "Vampire"
+      },
+      "tags": [
+        "vampire",
+        "monsters",
+        "monster"
+      ],
+      "footprint": [
+        1.34,
+        2.81,
+        0.61
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "monsters__vampire"
+    },
+    {
+      "key": "monsters/werewolf",
+      "id": "werewolf",
+      "category": "monsters",
+      "name": {
+        "zh": "狼人",
+        "en": "Werewolf"
+      },
+      "tags": [
+        "werewolf",
+        "monsters",
+        "monster"
+      ],
+      "footprint": [
+        1.72,
+        2.32,
+        1.658
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "monsters__werewolf"
+    },
+    {
+      "key": "monsters/zombie",
+      "id": "zombie",
+      "category": "monsters",
+      "name": {
+        "zh": "僵尸",
+        "en": "Zombie"
+      },
+      "tags": [
+        "zombie",
+        "monsters",
+        "monster"
+      ],
+      "footprint": [
+        1.42,
+        2.59,
+        1.296
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "monsters__zombie"
+    },
+    {
+      "key": "monsters/ghost",
+      "id": "ghost",
+      "category": "monsters",
+      "name": {
+        "zh": "幽灵",
+        "en": "Ghost"
+      },
+      "tags": [
+        "ghost",
+        "monsters",
+        "monster"
+      ],
+      "footprint": [
+        1.419,
+        1.97,
+        0.535
+      ],
+      "rigNodes": [],
+      "assetStem": "monsters__ghost"
+    },
+    {
+      "key": "monsters/skeleton",
+      "id": "skeleton",
+      "category": "monsters",
+      "name": {
+        "zh": "骷髅",
+        "en": "Skeleton"
+      },
+      "tags": [
+        "skeleton",
+        "monsters",
+        "monster"
+      ],
+      "footprint": [
+        0.96,
+        2.7,
+        0.5
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "monsters__skeleton"
+    },
+    {
+      "key": "monsters/mummy",
+      "id": "mummy",
+      "category": "monsters",
+      "name": {
+        "zh": "木乃伊",
+        "en": "Mummy"
+      },
+      "tags": [
+        "mummy",
+        "monsters",
+        "monster"
+      ],
+      "footprint": [
+        1.42,
+        2.53,
+        1.222
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "monsters__mummy"
+    },
+    {
+      "key": "office/executive",
+      "id": "executive",
+      "category": "office",
+      "name": {
+        "zh": "高管",
+        "en": "Executive"
+      },
+      "tags": [
+        "executive",
+        "office",
+        "human"
+      ],
+      "footprint": [
+        1.785,
+        2.76,
+        0.655
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "office__executive"
+    },
+    {
+      "key": "office/courier",
+      "id": "courier",
+      "category": "office",
+      "name": {
+        "zh": "外卖员",
+        "en": "Courier"
+      },
+      "tags": [
+        "courier",
+        "office",
+        "human"
+      ],
+      "footprint": [
+        1.46,
+        2.64,
+        1.421
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "office__courier"
+    },
+    {
+      "key": "office/janitor",
+      "id": "janitor",
+      "category": "office",
+      "name": {
+        "zh": "清洁工",
+        "en": "Janitor"
+      },
+      "tags": [
+        "janitor",
+        "office",
+        "human"
+      ],
+      "footprint": [
+        1.66,
+        2.665,
+        0.715
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "office__janitor"
+    },
+    {
+      "key": "office/barista",
+      "id": "barista",
+      "category": "office",
+      "name": {
+        "zh": "咖啡师",
+        "en": "Barista"
+      },
+      "tags": [
+        "barista",
+        "office",
+        "human"
+      ],
+      "footprint": [
+        1.39,
+        2.63,
+        1.129
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "office__barista"
+    },
+    {
+      "key": "office/securityGuard",
+      "id": "securityGuard",
+      "category": "office",
+      "name": {
+        "zh": "保安",
+        "en": "Security guard"
+      },
+      "tags": [
+        "securityGuard",
+        "office",
+        "human"
+      ],
+      "footprint": [
+        1.56,
+        2.81,
+        0.78
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "office__securityGuard"
+    },
+    {
+      "key": "villains/swat",
+      "id": "swat",
+      "category": "villains",
+      "name": {
+        "zh": "特警",
+        "en": "SWAT"
+      },
+      "tags": [
+        "swat",
+        "villains",
+        "low-poly"
+      ],
+      "footprint": [
+        1.93,
+        2.93,
+        1.12
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "villains__swat"
+    },
+    {
+      "key": "villains/viking",
+      "id": "viking",
+      "category": "villains",
+      "name": {
+        "zh": "维京战士",
+        "en": "Viking"
+      },
+      "tags": [
+        "viking",
+        "villains",
+        "low-poly"
+      ],
+      "footprint": [
+        1.97,
+        3.054,
+        1.44
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "villains__viking"
+    },
+    {
+      "key": "mechs/combatMech",
+      "id": "combatMech",
+      "category": "mechs",
+      "name": {
+        "zh": "战斗机甲",
+        "en": "Combat mech"
+      },
+      "tags": [
+        "combatMech",
+        "mechs",
+        "low-poly"
+      ],
+      "footprint": [
+        2.38,
+        3.14,
+        1.1
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "mechs__combatMech"
+    },
+    {
+      "key": "mythic/minotaur",
+      "id": "minotaur",
+      "category": "mythic",
+      "name": {
+        "zh": "牛头人",
+        "en": "Minotaur"
+      },
+      "tags": [
+        "minotaur",
+        "mythic",
+        "low-poly"
+      ],
+      "footprint": [
+        2.04,
+        3.126,
+        1.84
+      ],
+      "rigNodes": [
+        "rig_legL",
+        "rig_legR",
+        "rig_armL",
+        "rig_armR"
+      ],
+      "assetStem": "mythic__minotaur"
+    },
+    {
+      "key": "animals/pig",
+      "id": "pig",
+      "category": "animals",
+      "name": {
+        "zh": "猪",
+        "en": "Pig"
+      },
+      "tags": [
+        "pig",
+        "animal",
+        "farm",
+        "quadruped",
+        "cute"
+      ],
+      "footprint": [
+        2.145,
+        1.33,
+        0.92
+      ],
+      "rigNodes": [],
+      "assetStem": "animals__pig"
+    },
+    {
+      "key": "animals/cow",
+      "id": "cow",
+      "category": "animals",
+      "name": {
+        "zh": "牛",
+        "en": "Cow"
+      },
+      "tags": [
+        "cow",
+        "animal",
+        "farm",
+        "cattle",
+        "quadruped"
+      ],
+      "footprint": [
+        2.305,
+        1.46,
+        0.96
+      ],
+      "rigNodes": [],
+      "assetStem": "animals__cow"
+    },
+    {
+      "key": "animals/cat",
+      "id": "cat",
+      "category": "animals",
+      "name": {
+        "zh": "猫",
+        "en": "Cat"
+      },
+      "tags": [
+        "cat",
+        "animal",
+        "pet",
+        "tabby",
+        "quadruped"
+      ],
+      "footprint": [
+        1.828,
+        1.37,
+        0.78
+      ],
+      "rigNodes": [],
+      "assetStem": "animals__cat"
+    },
+    {
+      "key": "animals/fox",
+      "id": "fox",
+      "category": "animals",
+      "name": {
+        "zh": "狐狸",
+        "en": "Fox"
+      },
+      "tags": [
+        "fox",
+        "animal",
+        "wild",
+        "orange",
+        "quadruped"
+      ],
+      "footprint": [
+        2.435,
+        1.29,
+        0.76
+      ],
+      "rigNodes": [],
+      "assetStem": "animals__fox"
+    },
+    {
+      "key": "animals/chicken",
+      "id": "chicken",
+      "category": "animals",
+      "name": {
+        "zh": "鸡",
+        "en": "Chicken"
+      },
+      "tags": [
+        "chicken",
+        "animal",
+        "farm",
+        "bird",
+        "hen"
+      ],
+      "footprint": [
+        1.21,
+        1.175,
+        0.98
+      ],
+      "rigNodes": [],
+      "assetStem": "animals__chicken"
+    },
+    {
+      "key": "animals/frog",
+      "id": "frog",
+      "category": "animals",
+      "name": {
+        "zh": "青蛙",
+        "en": "Frog"
+      },
+      "tags": [
+        "frog",
+        "animal",
+        "amphibian",
+        "green",
+        "pond"
+      ],
+      "footprint": [
+        1.17,
+        0.77,
+        1.4
+      ],
+      "rigNodes": [],
+      "assetStem": "animals__frog"
+    },
+    {
+      "key": "animals/dog",
+      "id": "dog",
+      "category": "animals",
+      "name": {
+        "zh": "狗",
+        "en": "Dog"
+      },
+      "tags": [
+        "dog",
+        "animal",
+        "pet",
+        "puppy",
+        "quadruped"
+      ],
+      "footprint": [
+        2.008,
+        1.15,
+        0.8
+      ],
+      "rigNodes": [],
+      "assetStem": "animals__dog"
+    },
+    {
+      "key": "animals/sheep",
+      "id": "sheep",
+      "category": "animals",
+      "name": {
+        "zh": "羊",
+        "en": "Sheep"
+      },
+      "tags": [
+        "sheep",
+        "animal",
+        "farm",
+        "wool",
+        "lamb",
+        "quadruped"
+      ],
+      "footprint": [
+        1.86,
+        1.22,
+        0.92
+      ],
+      "rigNodes": [],
+      "assetStem": "animals__sheep"
+    },
+    {
+      "key": "animals/rabbit",
+      "id": "rabbit",
+      "category": "animals",
+      "name": {
+        "zh": "兔",
+        "en": "Rabbit"
+      },
+      "tags": [
+        "rabbit",
+        "bunny",
+        "animal",
+        "pet",
+        "ears",
+        "quadruped"
+      ],
+      "footprint": [
+        1.64,
+        1.38,
+        0.74
+      ],
+      "rigNodes": [],
+      "assetStem": "animals__rabbit"
+    },
+    {
+      "key": "animals/bear",
+      "id": "bear",
+      "category": "animals",
+      "name": {
+        "zh": "熊",
+        "en": "Bear"
+      },
+      "tags": [
+        "bear",
+        "animal",
+        "wild",
+        "forest",
+        "brown",
+        "quadruped"
+      ],
+      "footprint": [
+        2.405,
+        1.48,
+        1.06
+      ],
+      "rigNodes": [],
+      "assetStem": "animals__bear"
+    },
+    {
+      "key": "animals/duck",
+      "id": "duck",
+      "category": "animals",
+      "name": {
+        "zh": "鸭",
+        "en": "Duck"
+      },
+      "tags": [
+        "duck",
+        "animal",
+        "farm",
+        "bird",
+        "biped",
+        "pond"
+      ],
+      "footprint": [
+        1.18,
+        0.95,
+        0.94
+      ],
+      "rigNodes": [],
+      "assetStem": "animals__duck"
+    }
+  ]
+}

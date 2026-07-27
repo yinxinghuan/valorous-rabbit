@@ -566,6 +566,7 @@ function ImportedHero(character, model) {
   this.mesh = new THREE.Group();
   this.visual = new THREE.Group();
   this.model = model;
+  this.model.rotation.y += character.facingYaw || 0;
   this.visual.add(model);
   this.mesh.add(this.visual);
 
