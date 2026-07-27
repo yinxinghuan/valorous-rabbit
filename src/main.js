@@ -50,6 +50,7 @@ const copy = {
     stage: '第 {n} 关',
     stageProgress: '{time}秒 · {carrots}/{goal} 胡萝卜',
     wardrobe: '角色商店',
+    collection: '{n} 位逃亡者',
     closeWardrobe: '关闭角色商店',
     wallet: '胡萝卜',
     owned: '已拥有',
@@ -100,6 +101,7 @@ const copy = {
     stage: 'Stage {n}',
     stageProgress: '{time}s · {carrots}/{goal} carrots',
     wardrobe: 'Character shop',
+    collection: '{n} runners',
     closeWardrobe: 'Close character shop',
     wallet: 'Carrots',
     owned: 'Owned',
@@ -196,14 +198,17 @@ app.innerHTML = `
       <strong class="vr-hud__value" id="distance">0</strong>
       <span class="vr-hud__mission" id="mission">${gameMode === 'campaign' ? t('stageProgress', { time: 0, carrots: 0, goal: activeStage.carrots }) : ''}</span>
     </div>
-    <button class="vr-icon-button vr-icon-button--cast" id="cast" type="button" aria-label="${t('wardrobe')}">
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M8.5 8.2V6.8A3.5 3.5 0 0 1 12 3.3a3.5 3.5 0 0 1 3.5 3.5v1.4M5 20v-7.2l3.5-2.1 3.5 2.1 3.5-2.1 3.5 2.1V20H5Z"/>
-      </svg>
-    </button>
-    <div class="vr-wallet" id="wallet" aria-label="${t('wallet')}">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21c4-3.5 6-7 6-11a6 6 0 0 0-12 0c0 4 2 7.5 6 11Zm0-11c-3-2.7-4.7-4.7-5-7 2.8.2 4.5 1.5 5 4 .5-2.5 2.2-3.8 5-4-.3 2.3-2 4.3-5 7Z"/></svg>
-      <strong id="wallet-value">${progress.wallet}</strong>
+    <div class="vr-cast-dock">
+      <button class="vr-cast-button" id="cast" type="button" aria-label="${t('wardrobe')}">
+        <span class="vr-cast-button__portrait" id="cast-portrait" aria-hidden="true"></span>
+        <svg class="vr-cast-button__switch" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m8 7 3-3 3 3M11 4v7m5 6-3 3-3-3m3 3v-7"/>
+        </svg>
+      </button>
+      <div class="vr-wallet" id="wallet" aria-label="${t('wallet')}">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21c4-3.5 6-7 6-11a6 6 0 0 0-12 0c0 4 2 7.5 6 11Zm0-11c-3-2.7-4.7-4.7-5-7 2.8.2 4.5 1.5 5 4 .5-2.5 2.2-3.8 5-4-.3 2.3-2 4.3-5 7Z"/></svg>
+        <strong id="wallet-value">${progress.wallet}</strong>
+      </div>
     </div>
     <button class="vr-icon-button" id="sound" type="button" aria-label="${t('soundOn')}">
       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -266,13 +271,19 @@ app.innerHTML = `
       <button class="vr-shop__scrim" type="button" data-close-shop aria-label="${t('closeWardrobe')}"></button>
       <section class="vr-shop__panel" role="dialog" aria-modal="true" aria-labelledby="shop-title">
         <header class="vr-shop__header">
-          <div>
-            <span>${t('wallet')} · <strong id="shop-wallet">${progress.wallet}</strong></span>
+          <div class="vr-shop__heading">
+            <span>${t('collection', { n: CHARACTER_ROSTER.length })}</span>
             <h2 id="shop-title">${t('wardrobe')}</h2>
           </div>
-          <button class="vr-shop__close" id="shop-close" type="button" aria-label="${t('closeWardrobe')}">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
-          </button>
+          <div class="vr-shop__tools">
+            <div class="vr-shop__balance" aria-label="${t('wallet')}">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21c4-3.5 6-7 6-11a6 6 0 0 0-12 0c0 4 2 7.5 6 11Zm0-11c-3-2.7-4.7-4.7-5-7 2.8.2 4.5 1.5 5 4 .5-2.5 2.2-3.8 5-4-.3 2.3-2 4.3-5 7Z"/></svg>
+              <strong id="shop-wallet">${progress.wallet}</strong>
+            </div>
+            <button class="vr-shop__close" id="shop-close" type="button" aria-label="${t('closeWardrobe')}">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+            </button>
+          </div>
         </header>
         <p class="vr-shop__notice" id="shop-notice" aria-live="polite"></p>
         <button class="vr-shop__mode" id="mode-toggle" type="button"${progress.stage < 3 ? ' hidden' : ''}>
@@ -294,6 +305,7 @@ const elements = {
   hudLabel: document.querySelector('#hud-label'),
   mission: document.querySelector('#mission'),
   cast: document.querySelector('#cast'),
+  castPortrait: document.querySelector('#cast-portrait'),
   wallet: document.querySelector('#wallet'),
   walletValue: document.querySelector('#wallet-value'),
   sound: document.querySelector('#sound'),
@@ -575,28 +587,23 @@ function updateWallet() {
 }
 
 function characterMedia(character) {
-  if (character.spriteUrl) {
-    const image = document.createElement('img');
-    image.src = character.spriteUrl;
-    image.alt = '';
-    image.loading = 'lazy';
-    image.draggable = false;
-    return image;
-  }
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('viewBox', '0 0 80 80');
-  svg.setAttribute('aria-hidden', 'true');
-  svg.classList.add('vr-shop__rabbit-mark');
-  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-  path.setAttribute('d', 'M28 33 22 8l10 3 5 20m15 2 6-25-10 3-5 20M20 48c0-13 8-21 20-21s20 8 20 21-8 23-20 23-20-10-20-23Zm10-3h3m14 0h3M35 57c3 2 7 2 10 0');
-  svg.appendChild(path);
-  return svg;
+  const image = document.createElement('img');
+  image.src = character.spriteUrl;
+  image.alt = '';
+  image.loading = 'lazy';
+  image.draggable = false;
+  return image;
+}
+
+function updateCastPortrait() {
+  elements.castPortrait.replaceChildren(characterMedia(activeCharacter));
 }
 
 function renderShop() {
   const previousScroll = elements.shopGrid.scrollTop;
   elements.shopGrid.replaceChildren();
   updateWallet();
+  updateCastPortrait();
   elements.modeToggle.hidden = progress.stage < 3;
   elements.modeToggle.textContent = gameMode === 'endless' ? t('campaign') : t('endless');
   CHARACTER_ROSTER.forEach((character) => {
@@ -606,8 +613,16 @@ function renderShop() {
     const card = document.createElement('button');
     card.type = 'button';
     card.dataset.characterKey = character.key;
+    const stateKey = equipped ? 'equipped' : trial ? 'trial' : owned ? 'owned' : 'locked';
+    card.dataset.state = stateKey;
     card.className = `vr-shop__item${equipped ? ' is-equipped' : ''}${trial ? ' is-trial' : ''}`;
-    card.appendChild(characterMedia(character));
+    const media = document.createElement('span');
+    media.className = 'vr-shop__media';
+    const index = document.createElement('span');
+    index.className = 'vr-shop__index';
+    index.textContent = String(character.stage).padStart(2, '0');
+    media.append(index, characterMedia(character));
+    card.appendChild(media);
     const copyBox = document.createElement('span');
     copyBox.className = 'vr-shop__item-copy';
     const name = document.createElement('strong');
@@ -618,6 +633,7 @@ function renderShop() {
       : trial ? t('trial')
         : owned ? t('owned')
           : t('buy', { price: character.price });
+    card.setAttribute('aria-label', `${character.name[locale]} · ${state.textContent}`);
     copyBox.append(name, state);
     card.appendChild(copyBox);
     card.addEventListener('click', async () => {
@@ -721,6 +737,7 @@ async function hydrateCloudProgress() {
     if (awaitingFirstJump && gameMode === 'campaign') {
       activeStage = withDebugGoal(getStage(progress.stage));
       activeCharacter = getCharacter(activeStage.characterKey);
+      updateCastPortrait();
       elements.hudLabel.textContent = t('stage', { n: activeStage.id });
       elements.mission.textContent = t('stageProgress', {
         time: 0,
@@ -953,6 +970,7 @@ elements.replay.addEventListener('pointerdown', async (event) => {
     if (resultKind === 'complete' && activeStage.id < STAGES.length) {
       activeStage = withDebugGoal(getStage(activeStage.id + 1));
       activeCharacter = getCharacter(activeStage.characterKey);
+      updateCastPortrait();
     }
     elements.hudLabel.textContent = t('stage', { n: activeStage.id });
     elements.mission.textContent = t('stageProgress', {

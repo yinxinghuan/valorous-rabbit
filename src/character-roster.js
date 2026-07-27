@@ -1,4 +1,5 @@
 import inventory from './assets/character-inventory.json';
+import originalRabbitSprite from './assets/original-rabbit.png';
 
 const glbModules = import.meta.glob('./assets/characters/*.glb', {
   eager: true,
@@ -153,7 +154,7 @@ export const CHARACTER_ROSTER = [
     price: 0,
     facingYaw: 0,
     glbUrl: '',
-    spriteUrl: '',
+    spriteUrl: originalRabbitSprite,
   },
   ...sharedRoster,
 ];

@@ -27,10 +27,13 @@
 index.html                         # 移动 viewport、UUID、首屏关键底色、Guest Shell
 src/main.js                        # i18n、状态/UI、触控、身份、排行榜、通知、音频与首帧握手
 src/rabbit-world.js                # 上游 Three.js 场景、角色、碰撞、追逐与渲染循环
+src/rabbit-portrait-entry.js       # 复用真实游戏模型的勇兔透明缩略图渲染入口
 src/character-roster.js            # 53 角色、53 关目标、价格、朝向与穷举动作映射
 src/portable-glb-loader.js         # 旧 Three.js 共运行时的静态 GLB 2.0 适配器
 src/assets/character-inventory.json # 从实时 ASSETS.json 生成的 52 角色清单快照
 src/assets/characters/             # 52 个正式共享 GLB 与 52 张商店透明 sprite
+src/assets/original-rabbit.png     # 从原作程序化 Hero 实际渲染的透明商店缩略图
+rabbit-portrait.html               # 512×512 离屏截图用辅助页面，不进入产品导航
 scripts/sync-character-library.mjs # 动态筛选、复制并清理共享角色资产
 src/style.css                      # 视觉系统、Guest Shell 安全区与双尺寸响应式
 src/fonts/creepster-latin-v13.woff2 # Get Off My Grave 同款距离展示字体
@@ -80,7 +83,7 @@ Three.js renderer 跟随 `.vr-world` 的 ResizeObserver。产品竖屏相机 z=2
 
 本地镜像 `valorous_rabbit_cast_v1` 是运行期唯一可变真源，字段为 `stage / wallet / unlocked / selected / _lastActive`。拾取、购买、装备和过关先同步写入 localStorage；AlterU 内再以 1 秒 debounce 调用 `/note/aigram/ai/game/save/data`。首次加载通过 `/note/aigram/ai/game/get/data/list` 读取自己的记录，只在云端 `_lastActive` 更新时替换本地镜像，避免连续操作用一次性旧快照覆盖刚写入的角色。
 
-商店使用 2 列可滚动 DOM 网格显示 53 张角色卡，卡片采用 `click`，不在触摸滚动起点触发购买；sprite 使用 lazy loading。重绘卡片前后保存并恢复 `scrollTop`，所以在长列表底部购买不会跳回顶部。当前关角色显示“本关试用”，通关直接解锁；也可提前按 60/120/220/360/560 五档价格购买。第 3 关开放无尽模式入口；无尽使用 `selected` 角色，主线继续固定使用当关试用角色。
+商店使用 2 列可滚动 DOM 网格显示 53 张角色卡，卡片采用 `click`，不在触摸滚动起点触发购买；sprite 使用 lazy loading。原作勇兔没有外部 sprite，因此 `rabbit-portrait.html` 以 `portraitMode` 启动同一个 `createRabbitWorld()`，只创建 Hero 与灯光，并把透明 renderer 的 512×512 实际输出保存为 `original-rabbit.png`；商店卡和左上当前角色入口共同引用该构建资源。重绘卡片前后保存并恢复 `scrollTop`，所以在长列表底部购买不会跳回顶部。当前关角色显示“本关试用”，通关直接解锁；也可提前按 60/120/220/360/560 五档价格购买。第 3 关开放无尽模式入口；无尽使用 `selected` 角色，主线继续固定使用当关试用角色。
 
 ### 排行榜与跨用户交互
 

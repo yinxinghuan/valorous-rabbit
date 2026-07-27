@@ -25,6 +25,8 @@
 | 全量 52 角色运行轮播 | `full-roster-contact-390x844.png`、`full-roster/*.png` | — |
 | 极端比例与材质 | — | `full-mobile-archetypes__punk-320x568.png`、`full-mobile-mechs__combatMech-320x568.png`、`full-mobile-mythic__minotaur-320x568.png`、`full-mobile-animals__fox-320x568.png`、`full-mobile-animals__frog-320x568.png`、`full-mobile-monsters__ghost-320x568.png` |
 | 完整 53 卡商店底部 | `full-shop-bottom-390x844.png` | `full-shop-top-320x568.png`、`full-shop-bottom-320x568.png` |
+| 精修角色入口 | `refined-hud-390x844.png` | `refined-hud-320x568.png` |
+| 精修商店顶部/底部 | `refined-shop-top-390x844.png`、`refined-shop-bottom-390x844.png` | `refined-shop-top-320x568.png`、`refined-shop-bottom-320x568.png` |
 | 第 53 关主线完成 | `final-campaign-clear-390x844.png` | — |
 | 本地基线 | `../reference/local-baseline-1200x800.png` | — |
 
@@ -73,6 +75,13 @@
 6. **P2 / 长商店 / 底部购买后跳回顶部**：53 张卡把 320×568 的网格拉到 `scrollHeight 3568`。重绘前后保存 `scrollTop`；在底部购买鸭子后余额 `999 → 879`、状态变为 Owned，并保持 `scrollTop 3226`。
 7. **P2 / 长商店 / 完整性与响应式**：320×568 显示 53 张唯一角色卡、52 张正式 sprite 加 1 个程序化勇兔标记；网格宽 `298/298`、body 宽 `320/320`。390×844 底部可达且 body 宽 `390/390`。
 8. **关卡边界**：第 12 关完成后保存 stage 13 并切换 HUD；第 53 关显示 Campaign clear、解锁 Bear，重跑保持第 53 关。两条路径均无应用错误。
+
+## 角色商店与入口精修复验
+
+1. **P1 / 勇兔缩略图 / 手绘标记与原角色不一致**：删除独立 SVG 兔子标记；用 `rabbit-world.js` 的同一个程序化 Hero、材质与灯光直接生成 512×512 RGBA 缩略图。首张卡与当前角色入口均读取 `original-rabbit.png`，实测自然尺寸 `512×512`。
+2. **P2 / 商店入口 / 图标与余额彼此游离**：左上入口改为当前角色真实缩略图、切换徽标和附属胡萝卜余额组成的档案 dock；390×844 与 320×568 均保持完整 44 px 以上触控目标，未与距离 HUD 重叠。
+3. **P2 / 商店 / 通用网页卡片感**：面板改为暖纸登记册，卡片增加关卡编号、薄荷展台、切角与实体边框；标题、53 位逃亡者、余额、关闭和模式切换形成稳定层级，未使用玻璃模糊或 Emoji。
+4. **长列表与响应式**：两种尺寸均显示 53 张卡；390×844 网格 `scrollHeight/clientHeight = 4497/560`，320×568 为 `3957/346`，底部可达；两者页面横向溢出均为 0。底部购买 Bear 后余额 `820 → 260`、状态变为 Equipped，两种尺寸的 `scrollTop` 分别保持 `3937` 与 `3611`。卡片仍使用 `click`，列表保持 `touch-action: pan-y`。
 
 ## 最终评分
 

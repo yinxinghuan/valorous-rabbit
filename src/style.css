@@ -130,36 +130,97 @@ a:focus-visible {
   top: max(80px, calc(env(safe-area-inset-top) + 10px));
   right: max(12px, env(safe-area-inset-right));
   display: grid;
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   place-items: center;
   padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: rgb(219 230 230 / 72%);
+  border: 1px solid rgb(91 51 42 / 25%);
+  border-radius: 4px;
+  background: rgb(238 244 241 / 88%);
+  box-shadow: 3px 3px 0 rgb(52 42 39 / 12%);
+  clip-path: polygon(0 7px, 7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%);
+  cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease;
 }
 
-.vr-icon-button--cast {
-  right: auto;
+.vr-cast-dock {
+  position: absolute;
+  z-index: 7;
+  top: max(78px, calc(env(safe-area-inset-top) + 8px));
   left: max(12px, env(safe-area-inset-left));
+  display: grid;
+  width: 58px;
+  justify-items: stretch;
+  gap: 5px;
+  transition: opacity 180ms ease;
+}
+
+.vr-cast-button {
+  position: relative;
+  display: grid;
+  width: 58px;
+  height: 60px;
+  place-items: center;
+  padding: 2px;
+  overflow: visible;
+  border: 1px solid rgb(91 51 42 / 30%);
+  border-radius: 4px;
+  background: rgb(244 240 231 / 92%);
+  box-shadow: 4px 4px 0 rgb(52 42 39 / 14%);
+  clip-path: polygon(0 8px, 8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.vr-cast-button__portrait {
+  display: grid;
+  width: 50px;
+  height: 52px;
+  place-items: center;
+  overflow: hidden;
+  background: rgb(122 191 142 / 11%);
+  pointer-events: none;
+}
+
+.vr-cast-button__portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform: scale(1.08);
+}
+
+.vr-cast-button__switch {
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  width: 23px;
+  height: 23px;
+  padding: 4px;
+  border: 1px solid #f4f0e7;
+  border-radius: 50%;
+  background: var(--vr-rust);
+  fill: none;
+  stroke: #fff7f0;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+  pointer-events: none;
 }
 
 .vr-wallet {
-  position: absolute;
-  z-index: 6;
-  top: max(128px, calc(env(safe-area-inset-top) + 58px));
-  left: max(12px, env(safe-area-inset-left));
   display: inline-flex;
-  min-width: 44px;
-  height: 30px;
+  min-width: 58px;
+  height: 28px;
   align-items: center;
   justify-content: center;
-  padding: 4px 8px;
+  padding: 3px 7px;
   gap: 4px;
-  border: 1px solid rgb(91 51 42 / 20%);
+  border: 1px solid rgb(91 51 42 / 22%);
   border-radius: 3px;
-  background: rgb(231 239 236 / 76%);
+  background: rgb(244 240 231 / 90%);
   color: var(--vr-ink);
+  box-shadow: 2px 2px 0 rgb(52 42 39 / 9%);
   pointer-events: none;
 }
 
@@ -179,7 +240,13 @@ a:focus-visible {
 }
 
 .vr-icon-button:active {
-  transform: translateY(2px);
+  box-shadow: 1px 1px 0 rgb(52 42 39 / 10%);
+  transform: translate(2px, 2px);
+}
+
+.vr-cast-button:active {
+  box-shadow: 1px 1px 0 rgb(52 42 39 / 10%);
+  transform: translate(3px, 3px);
 }
 
 .vr-icon-button svg {
@@ -221,8 +288,8 @@ body:has(#alteru-guest-banner) .vr-icon-button {
   top: max(152px, calc(env(safe-area-inset-top) + 82px));
 }
 
-body:has(#alteru-guest-banner) .vr-wallet {
-  top: max(200px, calc(env(safe-area-inset-top) + 130px));
+body:has(#alteru-guest-banner) .vr-cast-dock {
+  top: max(150px, calc(env(safe-area-inset-top) + 80px));
 }
 
 .vr-result__eyebrow {
@@ -791,10 +858,12 @@ body:has(#alteru-guest-banner) .vr-wallet {
   max-height: min(720px, 100%);
   margin: 0 auto;
   overflow: hidden;
-  border: 1px solid rgb(91 51 42 / 44%);
-  background: #e7efec;
-  box-shadow: 6px 6px 0 rgb(52 42 39 / 20%);
-  clip-path: polygon(0 8px, 8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
+  border: 1px solid rgb(91 51 42 / 52%);
+  background:
+    linear-gradient(rgb(91 51 42 / 5%) 1px, transparent 1px) 0 0 / 100% 28px,
+    #f4f0e7;
+  box-shadow: 7px 7px 0 rgb(52 42 39 / 22%);
+  clip-path: polygon(0 10px, 10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
   transform: translateY(14px);
   transition: transform 220ms ease;
 }
@@ -805,26 +874,72 @@ body:has(#alteru-guest-banner) .vr-wallet {
 
 .vr-shop__header {
   display: flex;
-  min-height: 72px;
+  min-height: 78px;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 12px 10px 18px;
-  border-bottom: 1px solid rgb(91 51 42 / 18%);
+  padding: 13px 12px 11px 18px;
+  gap: 12px;
+  border-bottom: 1px solid rgb(91 51 42 / 24%);
+  background: rgb(244 240 231 / 92%);
 }
 
-.vr-shop__header span {
+.vr-shop__heading {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.vr-shop__heading > span {
   color: #96685b;
   font-size: 10px;
-  font-weight: 750;
-  letter-spacing: .08em;
+  font-weight: 800;
+  letter-spacing: .14em;
   text-transform: uppercase;
 }
 
-.vr-shop__header h2 {
-  margin: 4px 0 0;
-  font-family: "Arial Narrow", "Roboto Condensed", "Noto Sans SC", sans-serif;
-  font-size: 23px;
-  line-height: 1;
+.vr-shop__heading h2 {
+  margin: 0;
+  font-family: "Creepster", "Arial Narrow", "Roboto Condensed", "Noto Sans SC", sans-serif;
+  font-size: 27px;
+  font-weight: 400;
+  letter-spacing: .035em;
+  line-height: .95;
+}
+
+.vr-shop__tools {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 7px;
+}
+
+.vr-shop__balance {
+  display: inline-flex;
+  min-width: 58px;
+  height: 38px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 9px;
+  gap: 5px;
+  border: 1px solid rgb(91 51 42 / 22%);
+  border-radius: 3px;
+  background: #e6eee9;
+  box-shadow: 2px 2px 0 rgb(52 42 39 / 9%);
+}
+
+.vr-shop__balance svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: var(--vr-rust);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+.vr-shop__balance strong {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
 }
 
 .vr-shop__close {
@@ -834,10 +949,17 @@ body:has(#alteru-guest-banner) .vr-wallet {
   height: 44px;
   place-items: center;
   padding: 0;
-  border: 0;
-  background: transparent;
+  border: 1px solid rgb(91 51 42 / 22%);
+  border-radius: 3px;
+  background: rgb(255 255 255 / 32%);
   cursor: pointer;
   touch-action: manipulation;
+  transition: background 140ms ease, transform 140ms ease;
+}
+
+.vr-shop__close:active {
+  background: var(--vr-peach);
+  transform: translateY(2px);
 }
 
 .vr-shop__close svg {
@@ -852,6 +974,8 @@ body:has(#alteru-guest-banner) .vr-wallet {
   min-height: 28px;
   margin: 0;
   padding: 7px 16px 5px;
+  border-bottom: 1px solid rgb(91 51 42 / 11%);
+  background: rgb(255 255 255 / 23%);
   color: var(--vr-rust);
   font-size: 12px;
   font-weight: 700;
@@ -861,16 +985,20 @@ body:has(#alteru-guest-banner) .vr-wallet {
 
 .vr-shop__mode {
   min-height: 44px;
-  margin: 0 10px 8px;
-  padding: 8px 14px;
-  border: 1px solid rgb(91 51 42 / 28%);
+  margin: 8px 10px 0;
+  padding: 8px 42px 8px 14px;
+  border: 1px solid rgb(91 51 42 / 34%);
   border-radius: 3px;
-  background: rgb(122 191 142 / 18%);
+  background:
+    linear-gradient(135deg, transparent calc(100% - 31px), rgb(122 191 142 / 22%) calc(100% - 31px)),
+    #e4ede8;
   color: var(--vr-ink);
   font-size: 13px;
-  font-weight: 750;
+  font-weight: 800;
+  letter-spacing: .04em;
   cursor: pointer;
   touch-action: manipulation;
+  transition: box-shadow 140ms ease, transform 140ms ease;
 }
 
 .vr-shop__mode:active {
@@ -881,64 +1009,116 @@ body:has(#alteru-guest-banner) .vr-wallet {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   min-height: 0;
-  padding: 0 10px 12px;
-  gap: 8px;
+  padding: 10px 10px 14px;
+  gap: 9px;
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
+  scrollbar-color: rgb(91 51 42 / 32%) transparent;
+  scrollbar-width: thin;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
 }
 
+.vr-shop__grid::-webkit-scrollbar {
+  width: 5px;
+}
+
+.vr-shop__grid::-webkit-scrollbar-thumb {
+  border-radius: 99px;
+  background: rgb(91 51 42 / 30%);
+}
+
 .vr-shop__item {
+  position: relative;
   display: grid;
   min-width: 0;
-  min-height: 142px;
-  grid-template-rows: minmax(0, 1fr) auto;
+  min-height: 157px;
+  grid-template-rows: 108px auto;
   align-items: center;
-  padding: 7px;
-  border: 1px solid rgb(91 51 42 / 20%);
-  border-radius: 3px;
-  background: rgb(255 255 255 / 28%);
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid rgb(91 51 42 / 24%);
+  border-radius: 2px;
+  background: #eee9de;
+  box-shadow: 2px 2px 0 rgb(52 42 39 / 8%);
+  clip-path: polygon(0 7px, 7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%);
   color: var(--vr-ink);
   cursor: pointer;
   touch-action: manipulation;
+  transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+}
+
+.vr-shop__item:active {
+  box-shadow: 0 0 0 rgb(52 42 39 / 0%);
+  transform: translate(2px, 2px);
 }
 
 .vr-shop__item.is-equipped {
   border-color: var(--vr-rust);
-  background: rgb(255 197 162 / 34%);
+  box-shadow: inset 0 0 0 2px rgb(180 75 57 / 14%), 2px 2px 0 rgb(52 42 39 / 9%);
 }
 
 .vr-shop__item.is-trial {
-  border-style: dashed;
   border-color: var(--vr-green);
+  box-shadow: inset 0 0 0 2px rgb(122 191 142 / 17%), 2px 2px 0 rgb(52 42 39 / 9%);
 }
 
 .vr-shop__item.is-denied {
   animation: vr-shop-denied 220ms linear;
 }
 
-.vr-shop__item > img,
-.vr-shop__rabbit-mark {
+.vr-shop__media {
+  position: relative;
+  display: grid;
   width: 100%;
-  height: 96px;
-  object-fit: contain;
+  height: 108px;
+  place-items: center;
+  overflow: hidden;
+  border-bottom: 1px solid rgb(91 51 42 / 14%);
+  background:
+    radial-gradient(circle at 50% 73%, rgb(255 255 255 / 44%) 0 24%, transparent 25%),
+    linear-gradient(150deg, rgb(122 191 142 / 18%), rgb(215 231 225 / 58%));
   pointer-events: none;
 }
 
-.vr-shop__rabbit-mark {
-  fill: none;
-  stroke: var(--vr-rust);
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 2;
+.vr-shop__media > img {
+  width: 100%;
+  height: 103px;
+  object-fit: contain;
+  filter: drop-shadow(0 7px 5px rgb(52 42 39 / 15%));
+  pointer-events: none;
+}
+
+.vr-shop__index {
+  position: absolute;
+  z-index: 1;
+  top: 7px;
+  left: 7px;
+  display: grid;
+  min-width: 27px;
+  height: 20px;
+  place-items: center;
+  padding-inline: 4px;
+  border: 1px solid rgb(91 51 42 / 23%);
+  border-radius: 2px;
+  background: rgb(244 240 231 / 89%);
+  color: #96685b;
+  font-family: "Arial Narrow", "Roboto Condensed", sans-serif;
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  letter-spacing: .08em;
 }
 
 .vr-shop__item-copy {
   display: grid;
   min-width: 0;
-  gap: 3px;
+  min-height: 48px;
+  align-content: center;
+  padding: 6px 9px 7px;
+  gap: 2px;
+  background: rgb(255 255 255 / 22%);
   text-align: left;
 }
 
@@ -950,13 +1130,25 @@ body:has(#alteru-guest-banner) .vr-wallet {
 }
 
 .vr-shop__item-copy strong {
-  font-size: 13px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .01em;
 }
 
 .vr-shop__item-copy small {
   color: var(--vr-muted);
-  font-size: 10px;
-  font-weight: 650;
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.vr-shop__item[data-state="equipped"] .vr-shop__item-copy small {
+  color: var(--vr-rust);
+}
+
+.vr-shop__item[data-state="trial"] .vr-shop__item-copy small {
+  color: #457f59;
 }
 
 .vr-error {
@@ -976,7 +1168,7 @@ body:has(#alteru-guest-banner) .vr-wallet {
 .vr-stage.is-ended .vr-hud,
 .vr-stage.is-ended .vr-gesture,
 .vr-stage.is-ended .vr-icon-button,
-.vr-stage.is-ended .vr-wallet {
+.vr-stage.is-ended .vr-cast-dock {
   opacity: 0;
   pointer-events: none;
 }
@@ -985,7 +1177,8 @@ body:has(#alteru-guest-banner) .vr-wallet {
   animation: vr-hit-shake 120ms linear;
 }
 
-.vr-baseline .vr-icon-button {
+.vr-baseline .vr-icon-button,
+.vr-baseline .vr-cast-dock {
   display: none;
 }
 
@@ -1081,12 +1274,16 @@ body:has(#alteru-guest-banner) .vr-wallet {
   }
 
   .vr-shop__item {
-    min-height: 124px;
+    min-height: 137px;
+    grid-template-rows: 88px auto;
   }
 
-  .vr-shop__item > img,
-  .vr-shop__rabbit-mark {
-    height: 78px;
+  .vr-shop__media {
+    height: 88px;
+  }
+
+  .vr-shop__media > img {
+    height: 84px;
   }
 }
 

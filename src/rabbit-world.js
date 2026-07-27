@@ -71,6 +71,7 @@ var stageGoal = null;
 var debugCatchAfter = 0;
 var resizeObserver;
 var reducedMotion = false;
+var portraitMode = false;
 var currentCharacter = null;
 var characterTemplateCache = new Map();
 
@@ -144,10 +145,10 @@ function initScreenAnd3D() {
 
   scene = new THREE.Scene();
   
-  scene.fog = new THREE.Fog(0xd6eae6, 160,350);
+  scene.fog = portraitMode ? null : new THREE.Fog(0xd6eae6, 160,350);
   
   aspectRatio = WIDTH / HEIGHT;
-  cameraPosGame = !baselineMode && aspectRatio < .75 ? 205 : 160;
+  cameraPosGame = portraitMode ? 70 : !baselineMode && aspectRatio < .75 ? 205 : 160;
   fieldOfView = 50;
   nearPlane = 1;
   farPlane = 2000;
@@ -159,15 +160,16 @@ function initScreenAnd3D() {
   );
   camera.position.x = 0;
   camera.position.z = cameraPosGame;
-  camera.position.y = 30;
-  camera.lookAt(new THREE.Vector3(0, 30, 0));
+  camera.position.y = portraitMode ? 13 : 30;
+  camera.lookAt(new THREE.Vector3(0, portraitMode ? 14 : 30, 0));
 
   renderer = new THREE.WebGLRenderer({
     alpha: true,
-    antialias: true
+    antialias: true,
+    preserveDrawingBuffer: portraitMode,
   });
   renderer.setPixelRatio(window.devicePixelRatio); 
-  renderer.setClearColor( malusClearColor, malusClearAlpha);
+  renderer.setClearColor(portraitMode ? 0x000000 : malusClearColor, 0);
   
   renderer.setSize(WIDTH, HEIGHT);
   renderer.shadowMap.enabled = true;
@@ -1574,6 +1576,18 @@ function render(){
 async function init(){
   initScreenAnd3D();
   createLights();
+  if (portraitMode) {
+    await createHero(currentCharacter);
+    hero.mesh.rotation.y = .48;
+    hero.mesh.position.y = -3;
+    hero.torso.rotation.x = -Math.PI / 10;
+    hero.earL.rotation.x = Math.PI / 4;
+    hero.earR.rotation.x = Math.PI / 4.8;
+    render();
+    firstFrameRendered = true;
+    callbacks.onReady?.();
+    return;
+  }
   createFloor()
   await createHero(currentCharacter);
   createMonster();
@@ -1698,6 +1712,7 @@ export async function createRabbitWorld(element, options = {}) {
   callbacks = options.callbacks || {};
   baselineMode = Boolean(options.baseline);
   reducedMotion = Boolean(options.reducedMotion);
+  portraitMode = Boolean(options.portraitMode);
   destroyed = false;
   isPaused = Boolean(options.startPaused);
   firstFrameRendered = false;
