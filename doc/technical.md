@@ -53,7 +53,7 @@ _qa/platform-harness.html          # Aigram iframe bridge + 无 CORS 头像模�
 
 ### 状态、主循环与渲染
 
-`main.js` 维护 `loading → guided idle → running → result/error` 主状态，以及独立的 `shop open/closed`、`campaign/endless` 与 `stage 1…53` 子状态；`rabbit-world.js` 维护 `play → gameOver/levelComplete → readyToReplay` 场景状态。页面打开后立即通过动态 `import()` 下载场景模块并调用异步 `createRabbitWorld()`；当前 GLB、球面、灯光与障碍创建完成且 renderer 实际完成一帧后，`onReady` 显示场景并暂停玩法，等待第一次真实操作。
+`main.js` 维护 `loading → guided idle → running → result/error` 主状态，以及独立的 `shop open/closed`、`endless/campaign` 与 `stage 1…53` 子状态；未带参数时固定选择 `endless`，只有显式 `?mode=campaign` 才进入主线，避免关卡目标截断默认排行榜跑分。`rabbit-world.js` 维护 `play → gameOver/levelComplete → readyToReplay` 场景状态。页面打开后立即通过动态 `import()` 下载场景模块并调用异步 `createRabbitWorld()`；当前 GLB、球面、灯光与障碍创建完成且 renderer 实际完成一帧后，`onReady` 显示场景并暂停玩法，等待第一次真实操作。
 
 渲染循环沿用原作公式：球面每帧旋转 `delta × 0.03 × speed`，距离累加 `delta × speed`。主线狼以 `monsterAcceleration=0.0011` 追随目标位置，无尽模式为 `0.004`；速度每 3 秒增加 2、上限 48。主线每帧同时检查目标时长与任务胡萝卜，二者都完成后触发 `levelComplete`。页面隐藏、可见比例低于 25% 或角色商店打开时，同时暂停逻辑更新和 GSAP global timeline；恢复时丢弃暂停期间的 delta。
 
@@ -83,7 +83,7 @@ Three.js renderer 跟随 `.vr-world` 的 ResizeObserver。产品竖屏相机 z=2
 
 本地镜像 `valorous_rabbit_cast_v1` 是运行期唯一可变真源，字段为 `stage / wallet / unlocked / selected / _lastActive`。拾取、购买、装备和过关先同步写入 localStorage；AlterU 内再以 1 秒 debounce 调用 `/note/aigram/ai/game/save/data`。首次加载通过 `/note/aigram/ai/game/get/data/list` 读取自己的记录，只在云端 `_lastActive` 更新时替换本地镜像，避免连续操作用一次性旧快照覆盖刚写入的角色。
 
-商店使用 2 列可滚动 DOM 网格显示 53 张角色卡，卡片采用 `click`，不在触摸滚动起点触发购买；sprite 使用 lazy loading。原作勇兔没有外部 sprite，因此 `rabbit-portrait.html` 以 `portraitMode` 启动同一个 `createRabbitWorld()`，只创建 Hero 与灯光，并把透明 renderer 的 512×512 实际输出保存为 `original-rabbit.png`；商店卡和左上当前角色入口共同引用该构建资源。重绘卡片前后保存并恢复 `scrollTop`，所以在长列表底部购买不会跳回顶部。当前关角色显示“本关试用”，通关直接解锁；也可提前按 60/120/220/360/560 五档价格购买。第 3 关开放无尽模式入口；无尽使用 `selected` 角色，主线继续固定使用当关试用角色。
+商店使用 2 列可滚动 DOM 网格显示 53 张角色卡，卡片采用 `click`，不在触摸滚动起点触发购买；sprite 使用 lazy loading。原作勇兔没有外部 sprite，因此 `rabbit-portrait.html` 以 `portraitMode` 启动同一个 `createRabbitWorld()`，只创建 Hero 与灯光，并把透明 renderer 的 512×512 实际输出保存为 `original-rabbit.png`；商店卡和左上当前角色入口共同引用该构建资源。重绘卡片前后保存并恢复 `scrollTop`，所以在长列表底部购买不会跳回顶部。当前关角色显示“本关试用”，通关直接解锁；也可提前按 60/120/220/360/560 五档价格购买。模式入口从第 1 局起始终可见：默认无尽使用 `selected` 角色，显式主线继续固定使用当关试用角色；从主线返回无尽时删除 `mode` 参数，确保正常入口仍是无尽。
 
 ### 排行榜与跨用户交互
 

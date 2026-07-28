@@ -14,12 +14,18 @@
     <script>
       const frame = document.querySelector('#game');
       const gameUrl = new URL('../', location.href);
+      const outerQuery = new URLSearchParams(location.search);
+      for (const key of ['mode', 'catch_after', 'stage_duration', 'stage_carrots']) {
+        if (outerQuery.has(key)) gameUrl.searchParams.set(key, outerQuery.get(key));
+      }
       gameUrl.searchParams.set('api_origin', location.origin);
       gameUrl.searchParams.set('telegram_id', '24680');
       frame.src = gameUrl.href;
+      window.__qaRequests = [];
       window.addEventListener('message', (event) => {
         if (typeof event.data !== 'string' || !event.data.startsWith('callAPI-')) return;
         const request = JSON.parse(decodeURIComponent(escape(atob(event.data.slice(8)))));
+        window.__qaRequests.push(request);
         let data = null;
         if (request.url.includes('/user/get/info/')) {
           data = {

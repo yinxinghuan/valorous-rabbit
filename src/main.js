@@ -175,7 +175,7 @@ function withDebugGoal(stage) {
 }
 
 let activeStage = withDebugGoal(getStage(progress.stage));
-let gameMode = query.get('mode') === 'endless' && progress.stage >= 3 ? 'endless' : 'campaign';
+let gameMode = query.get('mode') === 'campaign' ? 'campaign' : 'endless';
 let activeCharacter = getCharacter(
   query.get('character') || (gameMode === 'endless' ? progress.selected : activeStage.characterKey),
 );
@@ -299,7 +299,7 @@ app.innerHTML = `
           </div>
         </header>
         <p class="vr-shop__notice" id="shop-notice" aria-live="polite"></p>
-        <button class="vr-shop__mode" id="mode-toggle" type="button"${progress.stage < 3 ? ' hidden' : ''}>
+        <button class="vr-shop__mode" id="mode-toggle" type="button">
           <svg class="vr-shop__mode-route" viewBox="0 0 64 32" aria-hidden="true">
             <path class="vr-shop__mode-route-main" d="M7 24.5c6-1 5.3-8.2 11.5-8.5 6.4-.3 6 7.6 12.4 7.1 6.8-.5 6.2-11 13.4-12.1 4.2-.6 7.5 1.6 11.7 0"/>
             <path class="vr-shop__mode-route-pencil" d="M7.5 26.2c6.2-1.4 6.1-7.6 11.1-8.2 6-.7 6.5 7.2 12.2 6.7 7.6-.7 6.6-11.2 13.7-12.3"/>
@@ -638,7 +638,7 @@ function renderShop() {
   elements.shopGrid.replaceChildren();
   updateWallet();
   updateCastPortrait();
-  elements.modeToggle.hidden = progress.stage < 3;
+  elements.modeToggle.hidden = false;
   elements.modeTitle.textContent = gameMode === 'endless' ? t('campaign') : t('endless');
   elements.modeHint.textContent = gameMode === 'endless' ? t('campaignHint') : t('endlessHint');
   elements.modeToggle.setAttribute(
@@ -1030,8 +1030,8 @@ elements.shopClose.addEventListener('click', closeShop);
 document.querySelector('[data-close-shop]').addEventListener('click', closeShop);
 elements.modeToggle.addEventListener('click', () => {
   const url = new URL(location.href);
-  if (gameMode === 'endless') url.searchParams.delete('mode');
-  else url.searchParams.set('mode', 'endless');
+  if (gameMode === 'endless') url.searchParams.set('mode', 'campaign');
+  else url.searchParams.delete('mode');
   location.href = url.href;
 });
 function openLeaderboard() {
