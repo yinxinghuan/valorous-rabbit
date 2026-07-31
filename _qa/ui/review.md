@@ -31,6 +31,9 @@
 | 第 53 关主线完成 | `final-campaign-clear-390x844.png` | — |
 | 默认无尽模式商店入口 | `endless-default-shop-390x844.png` | `endless-default-shop-320x568.png` |
 | 默认无尽被捕结算 | `endless-default-result-390x844.png` | `endless-default-result-320x568.png` |
+| 降难后平台内运行 | `difficulty-eased-platform-layout-gameplay-390x844.png` | `difficulty-eased-platform-layout-gameplay-320x568.png` |
+| 降难后平台内结算 | `difficulty-eased-platform-layout-result-390x844.png` | `difficulty-eased-platform-layout-result-320x568.png` |
+| 降难后外部访客扩展 | `difficulty-eased-external-guest-390x844.png` | — |
 | 本地基线 | `../reference/local-baseline-1200x800.png` | — |
 
 ## 首轮发现与修复
@@ -94,6 +97,13 @@
 2. **P1 / 结算隔离**：使用 `catch_after=2` 模拟真实被捕，390×844 与 320×568 均只在被捕后各写入 1 次 rank save；显式 `mode=campaign` 达成关卡后写入 0 次，避免主线距离污染榜单。
 3. **P2 / 小屏模式入口**：模式按钮在两个尺寸均可见；320×568 的图形、标题、说明、箭头和首屏 4 张角色卡完整，页面横向溢出为 0。
 4. **响应式结算**：两个尺寸的无尽结算都显示距离、冠军、重跑与原作署名；390×844 与 320×568 的页面横向溢出均为 0。
+
+## 追逐难度微调复验（2026-07-31）
+
+1. **节奏 / 狼追赶率**：无尽模式从 `0.0040` 降至 `0.0036`，固定 60 FPS、无胡萝卜与刺猬干预时的理论追上时间从约 `23.5` 秒延长至 `26.0` 秒；主线从 `0.0011` 降至 `0.0010`，约从 `82.8` 秒延长至 `91.0` 秒。其余奖励、惩罚、速度增长与碰撞参数保持不变。
+2. **平台内运行与结算**：390×844 与 320×568 均完成真实 WebGL 首触、运行和被捕结算；距离 HUD、角色、排行榜冠军入口与“再跑一次”完整可见，两种尺寸横向溢出均为 0。
+3. **外部访客检查**：390×844 普通外部 URL 正常安装访客扩展，登录 CTA 与关闭入口可达；未据此外部覆盖改动平台内 HUD 或相机构图。
+4. **复验结论**：与 2026-07-28 默认无尽证据对照，未发现新增 P0/P1；难度调整仅改变追逐时间，不改变视觉层级、失败反馈或恢复路径。
 
 ## 最终评分
 

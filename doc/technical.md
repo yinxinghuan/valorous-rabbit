@@ -55,7 +55,7 @@ _qa/platform-harness.html          # Aigram iframe bridge + 无 CORS 头像模�
 
 `main.js` 维护 `loading → guided idle → running → result/error` 主状态，以及独立的 `shop open/closed`、`endless/campaign` 与 `stage 1…53` 子状态；未带参数时固定选择 `endless`，只有显式 `?mode=campaign` 才进入主线，避免关卡目标截断默认排行榜跑分。`rabbit-world.js` 维护 `play → gameOver/levelComplete → readyToReplay` 场景状态。页面打开后立即通过动态 `import()` 下载场景模块并调用异步 `createRabbitWorld()`；当前 GLB、球面、灯光与障碍创建完成且 renderer 实际完成一帧后，`onReady` 显示场景并暂停玩法，等待第一次真实操作。
 
-渲染循环沿用原作公式：球面每帧旋转 `delta × 0.03 × speed`，距离累加 `delta × speed`。主线狼以 `monsterAcceleration=0.0011` 追随目标位置，无尽模式为 `0.004`；速度每 3 秒增加 2、上限 48。主线每帧同时检查目标时长与任务胡萝卜，二者都完成后触发 `levelComplete`。页面隐藏、可见比例低于 25% 或角色商店打开时，同时暂停逻辑更新和 GSAP global timeline；恢复时丢弃暂停期间的 delta。
+渲染循环沿用原作公式：球面每帧旋转 `delta × 0.03 × speed`，距离累加 `delta × speed`。主线狼以 `monsterAcceleration=0.0010` 追随目标位置，无尽模式为 `0.0036`；速度每 3 秒增加 2、上限 48。主线每帧同时检查目标时长与任务胡萝卜，二者都完成后触发 `levelComplete`。页面隐藏、可见比例低于 25% 或角色商店打开时，同时暂停逻辑更新和 GSAP global timeline；恢复时丢弃暂停期间的 delta。
 
 ### 角色资产与动作
 

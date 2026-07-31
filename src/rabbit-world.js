@@ -55,7 +55,9 @@ var collisionBonus = 20;
 var gameStatus = "play";
 var cameraPosGame = 160;
 var cameraPosGameOver = 260;
-var monsterAcceleration = 0.004;
+var endlessMonsterAcceleration = 0.0036;
+var campaignMonsterAcceleration = 0.001;
+var monsterAcceleration = endlessMonsterAcceleration;
 var malusClearColor = 0xb44b39;
 var malusClearAlpha = 0;
 var callbacks = {};
@@ -1719,7 +1721,7 @@ export async function createRabbitWorld(element, options = {}) {
   currentCharacter = options.character || null;
   stageGoal = options.stageGoal || null;
   debugCatchAfter = Number(options.debugCatchAfter) || 0;
-  monsterAcceleration = stageGoal ? .0011 : .004;
+  monsterAcceleration = stageGoal ? campaignMonsterAcceleration : endlessMonsterAcceleration;
   if (isPaused && typeof TweenMax.globalTimeScale === 'function') {
     TweenMax.globalTimeScale(0);
   }
@@ -1753,7 +1755,7 @@ export async function createRabbitWorld(element, options = {}) {
     },
     async startRun(character, nextStageGoal = null) {
       stageGoal = nextStageGoal;
-      monsterAcceleration = stageGoal ? .0011 : .004;
+      monsterAcceleration = stageGoal ? campaignMonsterAcceleration : endlessMonsterAcceleration;
       if (character && character.key !== currentCharacter?.key) {
         await replaceHero(character);
       }
