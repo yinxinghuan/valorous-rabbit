@@ -2,10 +2,10 @@ import './style.css';
 import {
   callAigramAPI,
   getGameUuid,
-  isInAigram,
+  isInAigramNow,
   openAigramProfile,
   postAigramAPI,
-  telegramId,
+  getTelegramId,
 } from '@shared/runtime';
 import {
   CHARACTER_ROSTER,
@@ -185,7 +185,7 @@ let shopOpen = false;
 function saveProgress() {
   progress = { ...progress, _lastActive: Date.now() };
   localStorage.setItem(SAVE_KEY, JSON.stringify(progress));
-  if (isInAigram && gameUuid) {
+  if (isInAigramNow() && gameUuid) {
     window.clearTimeout(cloudSaveTimer);
     cloudSaveTimer = window.setTimeout(() => {
       postAigramAPI('/note/aigram/ai/game/save/data', {
@@ -245,7 +245,7 @@ app.innerHTML = `
         <p class="vr-result__details">
           <span id="carrot-line"></span>
           <span aria-hidden="true">·</span>
-          <span id="result-rank">${isInAigram ? t('rankPending') : 'AlterU'}</span>
+          <span id="result-rank">${isInAigramNow() ? t('rankPending') : 'AlterU'}</span>
         </p>
         <button class="vr-champion" id="leaders" type="button">
           <svg class="vr-champion__crown" viewBox="0 0 24 24" aria-hidden="true">
@@ -377,8 +377,8 @@ let gameEnded = false;
 let awaitingFirstJump = !baseline;
 let offscreen = false;
 let leaderboardOpen = false;
-const canViewLeaderboard = Boolean(isInAigram && telegramId && gameUuid && !baseline);
-const canRank = Boolean(canViewLeaderboard && gameMode === 'endless');
+const canViewLeaderboard = Boolean(gameUuid && !baseline);
+const canRank = Boolean(gameUuid && !baseline && gameMode === 'endless');
 const leaderboardState = {
   rows: [],
   loaded: false,
@@ -405,7 +405,7 @@ function normalizeLeaderboard(response) {
 }
 
 function isSelf(row) {
-  return row.userId === String(telegramId);
+  return row.userId === String(getTelegramId());
 }
 
 function makeAvatar(row, className = '') {
@@ -505,7 +505,7 @@ function renderLeaderboardRows() {
       item.type = 'button';
       item.setAttribute('aria-label', t('openProfile', { name: row.userName }));
       item.addEventListener('click', () => {
-        if (isInAigram && row.userId) openAigramProfile(row.userId);
+        if (isInAigramNow() && row.userId) openAigramProfile(row.userId);
       });
     }
     const rank = document.createElement('span');
@@ -737,10 +737,10 @@ function closeShop() {
 
 async function loadIdentity() {
   if (query.get('user_name')?.trim()) return;
-  if (!isInAigram || !telegramId) return;
+  if (!isInAigramNow() || !getTelegramId()) return;
   try {
     const response = await callAigramAPI(
-      `/note/telegram/user/get/info/by/telegram_id?telegram_id=${encodeURIComponent(telegramId)}`,
+      `/note/telegram/user/get/info/by/telegram_id?telegram_id=${encodeURIComponent(getTelegramId())}`,
       'GET',
     );
     playerName = response?.data?.name || response?.data?.user_name || playerName;
@@ -754,14 +754,14 @@ async function loadIdentity() {
 loadIdentity();
 
 async function hydrateCloudProgress() {
-  if (!isInAigram || !gameUuid || !telegramId) return;
+  if (!isInAigramNow() || !gameUuid || !getTelegramId()) return;
   try {
     const response = await callAigramAPI(
       `/note/aigram/ai/game/get/data/list?session_id=${encodeURIComponent(gameUuid)}`,
       'GET',
     );
     const rows = Array.isArray(response?.data) ? response.data : [];
-    const mine = rows.find((row) => String(row.user_id) === String(telegramId));
+    const mine = rows.find((row) => String(row.user_id) === String(getTelegramId()));
     if (!mine?.resource_data) return;
     const cloud = JSON.parse(mine.resource_data);
     if ((Number(cloud._lastActive) || 0) <= (progress._lastActive || 0)) return;
@@ -1096,6 +1096,6 @@ window.addEventListener('keydown', (event) => {
 });
 
 renderShop();
-void refreshLeaderboard();
+if (isInAigramNow()) void refreshLeaderboard();
 void initWorld();
 if (query.get('leaderboard') === '1') openLeaderboard();
