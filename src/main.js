@@ -16,7 +16,7 @@ import {
 
 const query = new URLSearchParams(location.search);
 const baseline = query.get('baseline') === '1';
-const localeOverride = localStorage.getItem('game_locale');
+const localeOverride = alteruLocalStorage.getItem('game_locale');
 const locale = localeOverride === 'en' || localeOverride === 'zh'
   ? localeOverride
   : navigator.language.toLowerCase().startsWith('zh') ? 'zh' : 'en';
@@ -151,7 +151,7 @@ let cloudSaveTimer = 0;
 
 function loadProgress() {
   try {
-    const saved = JSON.parse(localStorage.getItem(SAVE_KEY) || '{}');
+    const saved = JSON.parse(alteruLocalStorage.getItem(SAVE_KEY) || '{}');
     return {
       stage: Math.max(1, Math.min(STAGES.length, Number(saved.stage) || 1)),
       wallet: Math.max(0, Number(saved.wallet) || 0),
@@ -184,7 +184,7 @@ let shopOpen = false;
 
 function saveProgress() {
   progress = { ...progress, _lastActive: Date.now() };
-  localStorage.setItem(SAVE_KEY, JSON.stringify(progress));
+  alteruLocalStorage.setItem(SAVE_KEY, JSON.stringify(progress));
   if (isInAigramNow() && gameUuid) {
     window.clearTimeout(cloudSaveTimer);
     cloudSaveTimer = window.setTimeout(() => {
@@ -772,7 +772,7 @@ async function hydrateCloudProgress() {
       selected: cloud.selected || 'original/rabbit',
       _lastActive: Number(cloud._lastActive) || 0,
     };
-    localStorage.setItem(SAVE_KEY, JSON.stringify(progress));
+    alteruLocalStorage.setItem(SAVE_KEY, JSON.stringify(progress));
     if (awaitingFirstJump && gameMode === 'campaign') {
       activeStage = withDebugGoal(getStage(progress.stage));
       activeCharacter = getCharacter(activeStage.characterKey);
