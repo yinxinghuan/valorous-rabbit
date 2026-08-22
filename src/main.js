@@ -7,6 +7,7 @@ import {
   postAigramAPI,
   getTelegramId,
 } from '@shared/runtime';
+import { waitForAigramIdentity } from './shared/runtime/identity-ready';
 import {
   CHARACTER_ROSTER,
   STAGES,
@@ -737,10 +738,11 @@ function closeShop() {
 
 async function loadIdentity() {
   if (query.get('user_name')?.trim()) return;
-  if (!isInAigramNow() || !getTelegramId()) return;
+  const telegramId = await waitForAigramIdentity();
+  if (!telegramId) return;
   try {
     const response = await callAigramAPI(
-      `/note/telegram/user/get/info/by/telegram_id?telegram_id=${encodeURIComponent(getTelegramId())}`,
+      `/note/telegram/user/get/info/by/telegram_id?telegram_id=${encodeURIComponent(telegramId)}`,
       'GET',
     );
     playerName = response?.data?.name || response?.data?.user_name || playerName;
